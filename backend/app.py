@@ -8224,11 +8224,7 @@ def get_admin_reports():
 
 @app.route("/")
 def home():
-
-    return (
-        "CampusShield Backend "
-        "is Running! 🛡️"
-    )
+    return app.send_static_file("index.html")
 
     # ============================================================
 # STUDENT PROFILE
