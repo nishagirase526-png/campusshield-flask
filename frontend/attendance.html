@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='api-config.js'></script>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Attendance - CampusShield</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <nav>
+
+        <div class="logo">
+            🛡️ CampusShield
+        </div>
+
+        <div class="nav-links">
+
+            <a href="student-dashboard.html">
+                Dashboard
+            </a>
+
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="attendance-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">
+                STUDENT MODULE
+            </p>
+
+            <h1>
+                Attendance
+            </h1>
+
+            <p>
+                Track your subject-wise attendance
+                in one place.
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             STUDENT INFORMATION
+        ================================================== -->
+
+        <div
+            class="attendance-summary"
+            id="studentInfo"
+        >
+
+            <h2>
+                Overall Attendance
+            </h2>
+
+            <div
+                class="attendance-number"
+                id="overallAttendance"
+            >
+                Loading...
+            </div>
+
+            <p id="attendanceMessage">
+                Loading attendance...
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             ATTENDANCE TABLE
+        ================================================== -->
+
+        <div class="attendance-table-container">
+
+            <h2>
+                Subject-wise Attendance
+            </h2>
+
+            <div id="attendanceStatus">
+                Loading attendance data...
+            </div>
+
+            <table id="attendanceTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Subject
+                        </th>
+
+                        <th>
+                            Total Classes
+                        </th>
+
+                        <th>
+                            Present
+                        </th>
+
+                        <th>
+                            Attendance
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="attendanceTableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        // ----------------------------------------------------
+        // LOAD ATTENDANCE
+        // ----------------------------------------------------
+
+        async function loadAttendance() {
+
+            const status =
+                document.getElementById(
+                    "attendanceStatus"
+                );
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/student/attendance",
+                        {
+                            method: "GET",
+                            credentials: "include"
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+
+                // --------------------------------------------
+                // Login required
+                // --------------------------------------------
+
+                if (response.status === 401) {
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+                }
+
+
+                // --------------------------------------------
+                // Other errors
+                // --------------------------------------------
+
+                if (!response.ok || !data.success) {
+
+                    status.innerHTML =
+                        "⚠️ " +
+                        (
+                            data.message ||
+                            "Unable to load attendance."
+                        );
+
+                    return;
+                }
+
+
+                // --------------------------------------------
+                // Overall attendance
+                // --------------------------------------------
+
+                document.getElementById(
+                    "overallAttendance"
+                ).textContent =
+                    data.overall_attendance + "%";
+
+
+                // --------------------------------------------
+                // Message
+                // --------------------------------------------
+
+                const overall =
+                    Number(
+                        data.overall_attendance
+                    );
+
+                let message =
+                    "Attendance information loaded.";
+
+                if (overall >= 75) {
+
+                    message =
+                        "✅ Good attendance.";
+
+                } else {
+
+                    message =
+                        "⚠️ Attendance is below 75%.";
+
+                }
+
+                document.getElementById(
+                    "attendanceMessage"
+                ).textContent = message;
+
+
+                // --------------------------------------------
+                // Table
+                // --------------------------------------------
+
+                const tableBody =
+                    document.getElementById(
+                        "attendanceTableBody"
+                    );
+
+                tableBody.innerHTML = "";
+
+
+                if (
+                    !data.attendance ||
+                    data.attendance.length === 0
+                ) {
+
+                    status.innerHTML =
+                        "No attendance records found.";
+
+                    return;
+                }
+
+
+                data.attendance.forEach(
+                    function(item) {
+
+                        const row =
+                            document.createElement(
+                                "tr"
+                            );
+
+
+                        const subjectCell =
+                            document.createElement(
+                                "td"
+                            );
+
+                        subjectCell.textContent =
+                            item.subject;
+
+
+                        if (item.code) {
+
+                            subjectCell.textContent +=
+                                " (" +
+                                item.code +
+                                ")";
+
+                        }
+
+
+                        const totalCell =
+                            document.createElement(
+                                "td"
+                            );
+
+                        totalCell.textContent =
+                            item.total_classes;
+
+
+                        const presentCell =
+                            document.createElement(
+                                "td"
+                            );
+
+                        presentCell.textContent =
+                            item.present;
+
+
+                        const attendanceCell =
+                            document.createElement(
+                                "td"
+                            );
+
+                        attendanceCell.textContent =
+                            item.attendance +
+                            "%";
+
+
+                        row.appendChild(
+                            subjectCell
+                        );
+
+                        row.appendChild(
+                            totalCell
+                        );
+
+                        row.appendChild(
+                            presentCell
+                        );
+
+                        row.appendChild(
+                            attendanceCell
+                        );
+
+
+                        tableBody.appendChild(
+                            row
+                        );
+
+                    }
+                );
+
+
+                status.innerHTML =
+                    "✅ Attendance loaded from database.";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Attendance Error:",
+                    error
+                );
+
+                status.innerHTML =
+                    "⚠️ Unable to connect to server.";
+
+            }
+
+        }
+
+
+        // ----------------------------------------------------
+        // LOGOUT
+        // ----------------------------------------------------
+
+        async function logoutUser() {
+
+            try {
+
+                await fetch(
+                    "/api/logout",
+                    {
+                        method: "POST",
+                        credentials: "include"
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Logout Error:",
+                    error
+                );
+
+            }
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        // ----------------------------------------------------
+        // START
+        // ----------------------------------------------------
+
+        loadAttendance();
+
+    </script>
+
+</body>
+
+</html>

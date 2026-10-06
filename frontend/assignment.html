@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="student-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="assignment-page">
+
+        <div class="page-heading">
+            <p class="tagline">STUDENT MODULE</p>
+            <h1>Assignments</h1>
+            <p>View, track and submit your college assignments.</p>
+        </div>
+
+        <div id="assignmentList" class="assignment-list" aria-live="polite">
+            <p>Loading assignments...</p>
+        </div>
+
+    </main>
+
+    <script>
+        function safeAssignmentHref(value) {
+            if (typeof value !== "string" || !value.trim()) return null;
+            try {
+                const parsed = new URL(value, window.location.origin);
+                return ["http:", "https:"].includes(parsed.protocol)
+                    ? parsed.href
+                    : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function formatDisplayDate(value) {
+            if (!value) return "No due date";
+            const match = String(value).slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!match) return "Date unavailable";
+            return new Date(
+                Number(match[1]),
+                Number(match[2]) - 1,
+                Number(match[3])
+            ).toLocaleDateString(undefined, {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            });
+        }
+
+        async function loadStudentAssignments() {
+            const list = document.getElementById("assignmentList");
+            list.replaceChildren();
+            const loading = document.createElement("p");
+            loading.textContent = "Loading assignments...";
+            list.appendChild(loading);
+
+            try {
+                const response = await fetch("/api/student/assignments");
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Unable to load assignments.");
+                }
+
+                const assignments = data.assignments || [];
+                list.replaceChildren();
+                if (assignments.length === 0) {
+                    const empty = document.createElement("p");
+                    empty.className = "empty-state";
+                    empty.setAttribute("role", "status");
+                    empty.textContent = "There are no assignments for your class yet.";
+                    list.appendChild(empty);
+                    return;
+                }
+
+                assignments.forEach(function (assignment) {
+                    const card = document.createElement("article");
+                    card.className = "assignment-card";
+
+                    const details = document.createElement("div");
+                    const title = document.createElement("h3");
+                    title.textContent = assignment.title || "Assignment";
+                    details.appendChild(title);
+
+                    const description = document.createElement("p");
+                    description.textContent =
+                        assignment.description || "No instructions provided.";
+                    details.appendChild(description);
+
+                    const info = document.createElement("p");
+                    const due = "Due: " + formatDisplayDate(assignment.due_date);
+                    const subject = assignment.subject_name
+                        ? assignment.subject_code
+                            ? assignment.subject_name + " (" + assignment.subject_code + ")"
+                            : assignment.subject_name
+                        : assignment.subject_code || "";
+                    const classDetails = [
+                        assignment.course,
+                        assignment.year_level ? "Year " + assignment.year_level : "",
+                        assignment.division,
+                        assignment.semester ? "Semester " + assignment.semester : "",
+                        assignment.academic_year
+                    ].filter(Boolean);
+                    const context = [
+                        subject ? "Subject: " + subject : "",
+                        classDetails.length ? "Class: " + classDetails.join(" · ") : ""
+                    ].filter(Boolean);
+                    info.textContent = [due].concat(context).join(" · ");
+                    details.appendChild(info);
+
+                    const statusValue = assignment.submission_status || "pending";
+                    const status = document.createElement("span");
+                    const safeStatus = ["pending", "submitted", "checked"].includes(statusValue)
+                        ? statusValue
+                        : "pending";
+                    status.className = "status " + safeStatus;
+                    status.textContent = safeStatus;
+                    details.appendChild(status);
+
+                    if (assignment.submission_status === "checked") {
+                        const review = document.createElement("p");
+                        const reviewParts = [];
+                        if (assignment.submission_marks !== null &&
+                            assignment.submission_marks !== undefined) {
+                            reviewParts.push("Marks: " + assignment.submission_marks);
+                        }
+                        if (assignment.submission_feedback) {
+                            reviewParts.push("Feedback: " + assignment.submission_feedback);
+                        }
+                        review.textContent = reviewParts.length
+                            ? reviewParts.join(" · ")
+                            : "Your submission has been reviewed.";
+                        details.appendChild(review);
+                    }
+
+                    const attachmentHref = safeAssignmentHref(assignment.attachment_url);
+                    if (attachmentHref) {
+                        const attachment = document.createElement("a");
+                        attachment.href = attachmentHref;
+                        attachment.target = "_blank";
+                        attachment.rel = "noopener noreferrer";
+                        attachment.textContent = "View assignment attachment";
+                        details.appendChild(document.createElement("br"));
+                        details.appendChild(attachment);
+                    }
+
+                    card.appendChild(details);
+
+                    const submissionHref = safeAssignmentHref(assignment.submission_url);
+                    if (submissionHref) {
+                        const submittedLink = document.createElement("a");
+                        submittedLink.href = submissionHref;
+                        submittedLink.target = "_blank";
+                        submittedLink.rel = "noopener noreferrer";
+                        submittedLink.textContent = "View your submission";
+                        card.appendChild(submittedLink);
+                    } else if (assignment.submission_id) {
+                        const recorded = document.createElement("p");
+                        recorded.textContent = "A submission is already recorded for this assignment.";
+                        card.appendChild(recorded);
+                    } else {
+                        const controls = document.createElement("div");
+                        const input = document.createElement("input");
+                        input.type = "url";
+                        input.maxLength = 500;
+                        input.required = true;
+                        input.placeholder = "Paste your submission link";
+                        input.setAttribute("aria-label", "Submission link");
+
+                        const button = document.createElement("button");
+                        button.type = "button";
+                        button.textContent = "Submit link";
+
+                        const message = document.createElement("p");
+                        message.setAttribute("aria-live", "polite");
+
+                        button.addEventListener("click", async function () {
+                            if (!input.reportValidity()) return;
+                            button.disabled = true;
+                            message.textContent = "Submitting...";
+                            try {
+                                const submitResponse = await fetch(
+                                    "/api/student/assignments/" +
+                                        encodeURIComponent(assignment.id) + "/submit",
+                                    {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ submission_url: input.value.trim() })
+                                    }
+                                );
+                                const result = await submitResponse.json();
+                                if (!submitResponse.ok || !result.success) {
+                                    throw new Error(result.message || "Unable to submit assignment.");
+                                }
+                                await loadStudentAssignments();
+                            } catch (error) {
+                                message.textContent = error.message || "Unable to submit assignment.";
+                                button.disabled = false;
+                            }
+                        });
+
+                        controls.appendChild(input);
+                        controls.appendChild(button);
+                        controls.appendChild(message);
+                        card.appendChild(controls);
+                    }
+
+                    list.appendChild(card);
+                });
+            } catch (error) {
+                list.replaceChildren();
+                const failure = document.createElement("p");
+                failure.className = "empty-state error";
+                failure.setAttribute("role", "status");
+                failure.textContent = error.message || "Unable to load assignments.";
+                list.appendChild(failure);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadStudentAssignments);
+    </script>
+
+</body>
+</html>

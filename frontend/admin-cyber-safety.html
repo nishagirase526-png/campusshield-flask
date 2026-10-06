@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cyber Safety - CampusShield</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🛡️ CampusShield
+    </div>
+
+    <div class="nav-links">
+
+        <a href="admin-dashboard.html">
+            Dashboard
+        </a>
+
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+
+    </div>
+
+</nav>
+
+
+<main class="dashboard">
+
+    <div class="dashboard-header">
+
+        <p class="tagline">
+            ADMIN PORTAL
+        </p>
+
+        <h1>Cyber Incident Reports</h1>
+
+        <p>
+            Read incident reports submitted by students across colleges.
+        </p>
+
+    </div>
+
+
+    <section class="report-card" aria-live="polite">
+        <h2>Submitted Incidents</h2>
+        <div id="adminIncidentList">Loading incident reports...</div>
+    </section>
+
+</main>
+
+<script>
+async function loadAdminIncidents() {
+    const list = document.getElementById("adminIncidentList");
+    try {
+        const response = await fetch("/api/admin/cyber-incidents"); const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to load incident reports.");
+        const incidents = result.incidents || [];
+        list.textContent = "";
+        if (!incidents.length) {
+            const empty = document.createElement("p");
+            empty.className = "empty-state";
+            empty.setAttribute("role", "status");
+            empty.textContent = "No incident reports have been submitted.";
+            list.appendChild(empty);
+            return;
+        }
+        incidents.forEach(item => {
+            const article = document.createElement("article"); article.className = "report-item";
+            const details = document.createElement("div");
+            const title = document.createElement("h3"); title.textContent = item.title || "";
+            const description = document.createElement("p"); description.textContent = item.description || "";
+            const reporter = [item.reporter_name, item.reporter_role, item.roll_number].filter(Boolean).join(" · ");
+            const classInfo = [item.course_name, item.year_level ? "Year " + item.year_level : "", item.division].filter(Boolean).join(" · ");
+            const meta = document.createElement("p");
+            meta.textContent = [item.college_name, reporter, classInfo, item.incident_type, item.priority, item.status, item.created_at].filter(Boolean).join(" · ");
+            details.append(title, description, meta);
+            if (item.resolution_notes) {
+                const resolution = document.createElement("p"); resolution.textContent = "Resolution notes: " + item.resolution_notes; details.appendChild(resolution);
+            }
+            article.appendChild(details);
+            if (item.evidence_url) {
+                try {
+                    const evidence = new URL(item.evidence_url);
+                    if (evidence.protocol === "http:" || evidence.protocol === "https:") {
+                        const link = document.createElement("a"); link.href = evidence.href; link.textContent = "Open evidence";
+                        link.target = "_blank"; link.rel = "noopener noreferrer"; article.appendChild(link);
+                    }
+                } catch (_) {}
+            }
+            list.appendChild(article);
+        });
+    } catch (error) {
+        const failure = document.createElement("p");
+        failure.className = "empty-state error";
+        failure.setAttribute("role", "status");
+        failure.textContent = error.message || "Unable to load incident reports.";
+        list.replaceChildren(failure);
+    }
+}
+loadAdminIncidents();
+</script>
+
+</body>
+
+</html>

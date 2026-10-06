@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">🛡️ CampusShield</div>
+
+    <div class="nav-links">
+        <a href="admin-dashboard.html">Dashboard</a>
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+    </div>
+</nav>
+
+<main class="dashboard">
+
+    <div class="dashboard-header">
+        <p class="tagline">ADMIN PORTAL</p>
+        <h1>Event Management</h1>
+        <p>View published events across colleges.</p>
+    </div>
+
+    <section class="notice-section" aria-live="polite">
+        <h2>Published Events</h2>
+        <div id="adminEventList">Loading events...</div>
+    </section>
+
+</main>
+
+<script>
+async function loadAdminEvents() {
+    const list = document.getElementById("adminEventList");
+    try {
+        const response = await fetch("/api/admin/events"); const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to load events.");
+        list.textContent = "";
+        if (!(result.events || []).length) {
+            const empty = document.createElement("p");
+            empty.className = "empty-state";
+            empty.setAttribute("role", "status");
+            empty.textContent = "No events have been published.";
+            list.appendChild(empty);
+            return;
+        }
+        result.events.forEach(item => {
+            const card = document.createElement("article"); card.className = "published-event";
+            const heading = document.createElement("h3"); heading.textContent = item.title || "";
+            const description = document.createElement("p"); description.textContent = item.description || "";
+            const meta = document.createElement("span");
+            const when = item.start_datetime ? new Date(item.start_datetime).toLocaleString() : "";
+            meta.textContent = [item.college_name, when, item.venue, item.created_by_name].filter(Boolean).join(" · ");
+            card.append(heading, description, meta); list.appendChild(card);
+        });
+    } catch (error) {
+        const failure = document.createElement("p");
+        failure.className = "empty-state error";
+        failure.setAttribute("role", "status");
+        failure.textContent = error.message || "Unable to load events.";
+        list.replaceChildren(failure);
+    }
+}
+loadAdminEvents();
+</script>
+
+</body>
+</html>

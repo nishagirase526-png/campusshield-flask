@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Safety - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --cyber-bg: #f5f7ff;
+            --cyber-panel: #ffffff;
+            --cyber-border: #dfe7f5;
+            --cyber-text: #1f2937;
+            --cyber-muted: #64748b;
+            --cyber-accent: #111827;
+            --cyber-accent-soft: #f3e8ff;
+            --cyber-success-bg: #ecfdf5;
+            --cyber-success-border: #a7f3d0;
+            --cyber-success-text: #166534;
+            --cyber-error-bg: #fef2f2;
+            --cyber-error-border: #fecaca;
+            --cyber-shadow: 0 10px 28px rgba(15, 23, 42, 0.06), 0 4px 16px rgba(109, 40, 217, 0.10), 0 4px 16px rgba(2, 132, 199, 0.08), 0 4px 16px rgba(219, 39, 119, 0.08);
+            --cyber-pill-bg: #f1f5f9;
+        }
+
+        body {
+            background: linear-gradient(180deg, #f8faff 0%, #eef4ff 100%);
+            color: var(--cyber-text);
+        }
+
+        .cyber-shell {
+            max-width: 1200px;
+            margin: 32px auto 48px;
+            padding: 0 20px;
+        }
+
+        .cyber-hero {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--cyber-border);
+            border-radius: 24px;
+            box-shadow: var(--cyber-shadow);
+            padding: 28px 30px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .cyber-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 999px;
+            background: #f3e8ff;
+            color: #6d28d9;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 8px 14px;
+            margin-bottom: 10px;
+        }
+
+        .cyber-hero h1 {
+            margin: 0;
+            font-size: clamp(2rem, 3vw, 3rem);
+            line-height: 1.1;
+        }
+
+        .cyber-hero p {
+            margin: 8px 0 0;
+            color: var(--cyber-muted);
+            font-size: 1.02rem;
+            max-width: 620px;
+        }
+
+        .cyber-hero-mark {
+            background: linear-gradient(135deg, #eef4ff 0%, #dfeaff 100%);
+            border: 1px solid #dbeafe;
+            border-radius: 20px;
+            width: 110px;
+            height: 110px;
+            display: grid;
+            place-items: center;
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .cyber-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            margin: 28px 0;
+        }
+
+        .cyber-card {
+            background: var(--cyber-panel);
+            border: 1px solid var(--cyber-border);
+            border-radius: 20px;
+            padding: 22px 20px;
+            box-shadow: var(--cyber-shadow);
+            display: flex;
+            flex-direction: column;
+            min-height: 205px;
+        }
+
+        .cyber-card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: #f1f5f9;
+            font-size: 1.8rem;
+            margin-bottom: 18px;
+        }
+
+        .cyber-card h3 {
+            margin: 0 0 10px;
+            font-size: 1.12rem;
+        }
+
+        .cyber-card p {
+            margin: 0 0 auto;
+            color: var(--cyber-muted);
+            line-height: 1.6;
+        }
+
+        .cyber-card a {
+            text-decoration: none;
+            margin-top: 18px;
+        }
+
+        .cyber-card button,
+        .cyber-submit-btn {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            background: #111827;
+            color: #ffffff;
+            padding: 12px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32), 0 0 10px rgba(109, 40, 217, 0.16);
+        }
+
+        .cyber-card button:hover,
+        .cyber-submit-btn:hover {
+            background: #1f2937;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 14px rgba(124, 58, 237, 0.24);
+            transform: translateY(-1px);
+        }
+
+        .cyber-report-panel {
+            background: var(--cyber-panel);
+            border: 1px solid var(--cyber-border);
+            border-radius: 24px;
+            box-shadow: var(--cyber-shadow);
+            padding: 28px;
+            margin-top: 8px;
+        }
+
+        .cyber-section-header {
+            margin-bottom: 24px;
+        }
+
+        .cyber-section-header h2 {
+            margin: 0 0 6px;
+            font-size: clamp(1.5rem, 2vw, 2rem);
+        }
+
+        .cyber-section-header p {
+            margin: 0;
+            color: var(--cyber-muted);
+        }
+
+        .cyber-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px 24px;
+        }
+
+        .cyber-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cyber-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .cyber-field label {
+            font-size: 0.93rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .cyber-field input,
+        .cyber-field select,
+        .cyber-field textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #dfe6ef;
+            background: #fbfcff;
+            border-radius: 12px;
+            padding: 13px 14px;
+            font: inherit;
+            color: var(--cyber-text);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cyber-field textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .cyber-field input:focus,
+        .cyber-field select:focus,
+        .cyber-field textarea:focus {
+            outline: none;
+            border-color: #0f172a;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.12), 0 0 10px rgba(109, 40, 217, 0.14);
+            background: white;
+        }
+
+        .cyber-submit-wrap {
+            margin-top: 24px;
+        }
+
+        .cyber-submit-btn {
+            max-width: 250px;
+            font-size: 1rem;
+        }
+
+        .cyber-alert {
+            margin-top: 18px;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-weight: 600;
+            display: none;
+            border: 1px solid transparent;
+        }
+
+        .cyber-alert.visible {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cyber-alert.success {
+            background: var(--cyber-success-bg);
+            border-color: var(--cyber-success-border);
+            color: var(--cyber-success-text);
+        }
+
+        .cyber-alert.error {
+            background: var(--cyber-error-bg);
+            border-color: var(--cyber-error-border);
+            color: #991b1b;
+        }
+
+        .cyber-history {
+            margin-top: 30px;
+        }
+
+        .cyber-history h2 {
+            margin: 0 0 18px;
+            font-size: clamp(1.35rem, 2vw, 1.8rem);
+        }
+
+        .cyber-report-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .cyber-report-item {
+            background: #f8fbff;
+            border: 1px solid var(--cyber-border);
+            border-radius: 18px;
+            padding: 18px 18px 16px;
+        }
+
+        .cyber-report-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .cyber-chip {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            background: var(--cyber-pill-bg);
+            color: #334155;
+            border: 1px solid #e2e8f0;
+        }
+
+        .cyber-chip.status {
+            background: #ecfeff;
+            border-color: #c5f0f4;
+            color: #0f766e;
+        }
+
+        .cyber-chip.severity {
+            background: #fff7ed;
+            border-color: #fed7aa;
+            color: #9a5b00;
+        }
+
+        .cyber-report-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 6px;
+        }
+
+        .cyber-report-head h3 {
+            margin: 0;
+            font-size: 1.08rem;
+        }
+
+        .cyber-report-item p {
+            margin: 0;
+            color: var(--cyber-muted);
+            line-height: 1.6;
+        }
+
+        .cyber-report-item .cyber-report-date {
+            font-size: 0.85rem;
+            color: var(--cyber-muted);
+            margin-top: 8px;
+        }
+
+        .cyber-report-item .cyber-report-desc {
+            margin-top: 12px;
+            color: var(--cyber-text);
+        }
+
+        .cyber-report-item .cyber-evidence-link {
+            display: inline-flex;
+            margin-top: 14px;
+            text-decoration: none;
+            color: var(--cyber-accent);
+            font-weight: 700;
+        }
+
+        .cyber-empty-state {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 18px;
+            padding: 28px 20px;
+            text-align: center;
+            color: var(--cyber-muted);
+        }
+
+        .cyber-empty-state .empty-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .cyber-empty-state strong {
+            display: block;
+            font-size: 1.06rem;
+            color: var(--cyber-text);
+            margin-bottom: 4px;
+        }
+
+        /* Cyber Safety Video Library */
+        .cyber-videos-section {
+            background: var(--cyber-panel);
+            border: 1px solid var(--cyber-border);
+            border-radius: 24px;
+            box-shadow: var(--cyber-shadow);
+            padding: 30px;
+            margin: 28px 0;
+            position: relative;
+        }
+
+        .cyber-video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+            margin-top: 22px;
+        }
+
+        .cyber-video-card {
+            background: #ffffff;
+            border: 1px solid var(--cyber-border);
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(109, 40, 217, 0.08), 0 2px 8px rgba(219, 39, 119, 0.06);
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        }
+
+        .cyber-video-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(109, 40, 217, 0.35);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(109, 40, 217, 0.16), 0 4px 16px rgba(219, 39, 119, 0.12);
+        }
+
+        .cyber-video-frame {
+            position: relative;
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #0f172a;
+        }
+
+        .cyber-video-frame iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .cyber-video-thumbnail {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #0f172a;
+        }
+
+        .cyber-video-play {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 2.6rem;
+            text-shadow: 0 2px 8px #000;
+            pointer-events: none;
+            background: linear-gradient(transparent 55%, rgba(15, 23, 42, .55));
+        }
+
+        .cyber-video-fallback {
+            display: grid;
+            place-items: center;
+            width: 100%;
+            height: 100%;
+            color: #fff;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #111827, #4c1d95);
+        }
+
+        .cyber-video-content {
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .cyber-video-tag-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .cyber-chip.video-topic {
+            background: #f3e8ff;
+            border-color: #e9d5ff;
+            color: #6d28d9;
+            font-weight: 700;
+        }
+
+        .cyber-video-source {
+            font-size: 0.78rem;
+            color: var(--cyber-muted);
+            font-weight: 600;
+        }
+
+        .cyber-video-title {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--cyber-text);
+            line-height: 1.35;
+        }
+
+        .cyber-video-description {
+            margin: 0 0 14px;
+            color: var(--cyber-muted);
+            font-size: 0.9rem;
+            line-height: 1.55;
+            flex-grow: 1;
+        }
+
+        .cyber-video-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.82rem;
+        }
+
+        .cyber-video-watch-link {
+            color: #111827;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.18s ease;
+        }
+
+        .cyber-video-watch-link:hover {
+            color: #6d28d9;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .cyber-grid,
+            .cyber-video-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .cyber-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .cyber-grid,
+            .cyber-video-grid,
+            .cyber-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cyber-videos-section,
+            .cyber-report-panel {
+                padding: 20px 16px;
+            }
+
+            .cyber-shell {
+                padding: 0 14px;
+            }
+
+            .cyber-hero {
+                padding: 22px 18px;
+            }
+
+            .cyber-report-head {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+        <div class="nav-links">
+            <a href="student-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="cyber-shell">
+        <section class="cyber-hero">
+            <div>
+                <div class="cyber-hero-badge">🔒 Security Center</div>
+                <h1>Cyber Safety Center</h1>
+                <p>Report suspicious activity and help keep your college community safe.</p>
+            </div>
+            <div class="cyber-hero-mark" aria-hidden="true">🛡️</div>
+        </section>
+
+        <div class="cyber-grid">
+            <div class="cyber-card">
+                <div class="cyber-card-icon">🔐</div>
+                <h3>Password Strength</h3>
+                <p>Check whether your password is weak, medium or strong.</p>
+                <a href="password-checker.html"><button>Check Password</button></a>
+            </div>
+
+            <div class="cyber-card">
+                <div class="cyber-card-icon">🛡️</div>
+                <h3>Digital Safety Score</h3>
+                <p>Test your cyber safety habits and get a safety score.</p>
+                <a href="digital-score.html"><button>Check My Score</button></a>
+            </div>
+
+            <div class="cyber-card">
+                <div class="cyber-card-icon">🌐</div>
+                <h3>Website Safety</h3>
+                <p>Learn how to identify safe and suspicious websites.</p>
+                <a href="website-checker.html"><button>Check Website</button></a>
+            </div>
+
+            <div class="cyber-card">
+                <div class="cyber-card-icon">🧠</div>
+                <h3>Cyber Security Quiz</h3>
+                <p>Test your knowledge of cyber security through a short quiz.</p>
+                <a href="cyber-quiz.html"><button>Start Quiz</button></a>
+            </div>
+
+            <div class="cyber-card">
+                <div class="cyber-card-icon">💡</div>
+                <h3>Safety Tips</h3>
+                <p>Learn simple tips to protect yourself from online threats.</p>
+                <a href="safety-tips.html"><button>View Tips</button></a>
+            </div>
+
+            <div class="cyber-card">
+                <div class="cyber-card-icon">📄</div>
+                <h3>Safety Report</h3>
+                <p>View your cyber safety results and generate a safety report.</p>
+                <a href="safety-report.html"><button>View Report</button></a>
+            </div>
+        </div>
+
+        <section class="cyber-videos-section" aria-labelledby="videosHeading">
+            <div class="cyber-section-header">
+                <div class="cyber-hero-badge">📺 Educational Video Library</div>
+                <h2 id="videosHeading">Cyber Safety Awareness & Video Guides</h2>
+                <p>20 curated educational videos from cybersecurity agencies, educators, and trusted organizations.</p>
+            </div>
+
+            <div class="cyber-video-grid" id="cyberVideoGrid" aria-live="polite"></div>
+        </section>
+
+        <section class="cyber-report-panel" aria-labelledby="incidentFormHeading">
+            <div class="cyber-section-header">
+                <h2 id="incidentFormHeading">Report a Cyber Incident</h2>
+                <p>Share an incident with your college administrators.</p>
+            </div>
+
+            <form id="incidentForm">
+                <div class="cyber-form-grid">
+                    <div class="cyber-field">
+                        <label for="incidentType">Incident type</label>
+                        <select id="incidentType" required>
+                            <option value="">Choose a type</option>
+                            <option value="phishing">Phishing</option>
+                            <option value="account_hacked">Account hacked</option>
+                            <option value="cyberbullying">Cyberbullying</option>
+                            <option value="fake_account">Fake account</option>
+                            <option value="online_fraud">Online fraud</option>
+                            <option value="password_compromise">Password compromised</option>
+                            <option value="malware">Malware</option>
+                            <option value="suspicious_message">Suspicious message</option>
+                            <option value="suspicious_link">Suspicious link</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="cyber-field">
+                        <label for="incidentTitle">Title</label>
+                        <input id="incidentTitle" type="text" maxlength="200" required>
+                    </div>
+
+                    <div class="cyber-field full">
+                        <label for="incidentDescription">What happened?</label>
+                        <textarea id="incidentDescription" rows="5" maxlength="10000" required></textarea>
+                    </div>
+
+                    <div class="cyber-field full">
+                        <label for="incidentEvidence">Evidence link (optional)</label>
+                        <input id="incidentEvidence" type="url" maxlength="500" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="cyber-submit-wrap">
+                    <button type="submit" class="cyber-submit-btn">Submit Incident Report</button>
+                </div>
+
+                <p id="incidentMessage" class="cyber-alert" role="status" aria-live="polite"></p>
+            </form>
+
+            <div class="cyber-history">
+                <h2>Your Previous Reports</h2>
+                <div id="studentIncidentList" aria-live="polite">Loading your reports...</div>
+            </div>
+        </section>
+    </main>
+
+<script>
+const cyberSafetyVideos = [
+    { id: "-mdIH67HKqk", title: "Multi-Factor Authentication - Cyber Safety Series", topic: "Account protection", source: "CYBER.ORG + CISA", description: "Learn how a second verification factor makes stolen or guessed passwords less useful to attackers." },
+    { id: "qgxqZZDG0VE", title: "Internet of Things - Cyber Safety Series", topic: "Connected devices", source: "CYBER.ORG + CISA", description: "Understand the risks of connected devices and practical steps to secure smart devices on personal and campus networks." },
+    { id: "6iPKt6F64rc", title: "Social Media - Cyber Safety Series", topic: "Privacy", source: "CYBER.ORG + CISA", description: "Review safer social media habits that help protect personal information, accounts, and online interactions." },
+    { id: "eEgYPsUionw", title: "Ransomware - Cyber Safety Series", topic: "Ransomware", source: "CYBER.ORG + CISA", description: "An educational introduction to ransomware and sensible ways to reduce the chance of losing access to important files." },
+    { id: "08oJtFFH6a0", title: "Phishing - Cyber Safety Series", topic: "Phishing", source: "CYBER.ORG + CISA", description: "Learn how fraudulent email and text messages impersonate trusted organizations to steal information." },
+    { id: "OiQKZWNeAjc", title: "Making Strong Passwords - Cyber Safety Series", topic: "Passwords", source: "CYBER.ORG + CISA", description: "Build memorable, stronger passwords and understand why reusing credentials creates risk." },
+    { id: "V1b4odH-20g", title: "Online Gaming Safety", topic: "Online conduct", source: "CYBER.ORG + CISA", description: "Practical guidance for protecting privacy and accounts while interacting in online games and communities." },
+    { id: "m-Sy92NjFmY", title: "Video Call Safety", topic: "Remote learning", source: "CYBER.ORG + CISA", description: "Use safer meeting practices to protect links, meeting access, and personal information during online classes." },
+    { id: "zCcX6aSXcLI", title: "How to Update Software! (We Can Secure Our World)", topic: "Device security", source: "CISA", description: "Understand why promptly installing trusted software updates closes security weaknesses on computers and phones." },
+    { id: "EEa8FkOuIbQ", title: "Safer with Google: Gmail Phishing Protection", topic: "Email security", source: "Google India", description: "A short guide to suspicious email warning signs and Gmail's phishing protections." },
+    { id: "V5i6JdO7de0", title: "Safe Browsing with Google Chrome", topic: "Safe browsing", source: "Google India", description: "Learn browser safety basics and how Safe Browsing can warn about dangerous sites and downloads." },
+    { id: "9biY0ejidbQ", title: "Safer with Google: Play Protect", topic: "Mobile security", source: "Google India", description: "An overview of mobile app safety and checking apps for harmful behavior before and after installation." },
+    { id: "kGPCUvZZ6FM", title: "Cybersecurity Basics for Small Business (OLD)", topic: "Cyber hygiene", source: "Federal Trade Commission", description: "The FTC introduces core security practices such as protecting accounts, devices, and important information." },
+    { id: "UasqK0JA6co", title: "UPI Fraud Awareness AV", topic: "Digital payments", source: "NPCI (video attribution)", description: "Guidance for recognizing common UPI fraud approaches and checking payment requests carefully." },
+    { id: "05mL4dF1iMM", title: "Cybersecurity Awareness Training - Public WiFi", topic: "Public Wi-Fi", source: "ESET North America", description: "Security-awareness guidance about the risks of public Wi-Fi and protecting information when connecting away from home." },
+    { id: "JO55V34EnK8", title: "How to Protect Your Privacy Online", topic: "Personal data", source: "Kaspersky", description: "Practical ideas for limiting the personal information shared online and improving privacy settings." },
+    { id: "bC8pjXn-sWM", title: "Deter. Detect. Defend. Avoid ID Theft", topic: "Identity theft", source: "Federal Trade Commission", description: "The FTC explains steps to reduce identity-theft risk and what to watch for if personal information is misused." },
+    { id: "ixxb4BWCBwY", title: "What Is a Digital Footprint?", topic: "Digital footprint", source: "Common Sense Education", description: "Explore how online activity and shared information contribute to a digital footprint and why it matters." },
+    { id: "T7SiEQWzbAU", title: "Pass It On | Federal Trade Commission", topic: "Scam awareness", source: "Federal Trade Commission", description: "The FTC encourages people to start conversations about scams and share prevention information with people they know." },
+    { id: "2-AHlapRQVY", title: "Cybersecurity Awareness Month 2024: Secure Our World", topic: "Cyber hygiene", source: "William & Mary IT", description: "A campus information-security awareness resource reinforcing password safety, MFA, phishing recognition, and software updates." }
+];
+
+function renderCyberSafetyVideos() {
+    const grid = document.getElementById("cyberVideoGrid");
+    const ids = cyberSafetyVideos.map(video => video.id);
+    const valid = cyberSafetyVideos.length === 20 &&
+        new Set(ids).size === 20 &&
+        cyberSafetyVideos.every(video => /^[A-Za-z0-9_-]{11}$/.test(video.id) && video.title && video.description && video.source && video.topic);
+    if (!valid) {
+        const error = document.createElement("p");
+        error.className = "cyber-empty-state";
+        error.textContent = "The educational video library could not be loaded.";
+        grid.replaceChildren(error);
+        return;
+    }
+
+    const cards = cyberSafetyVideos.map((video, index) => {
+        const card = document.createElement("article");
+        card.className = "cyber-video-card";
+        const frame = document.createElement("a");
+        frame.className = "cyber-video-frame";
+        frame.href = `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`;
+        frame.target = "_blank";
+        frame.rel = "noopener noreferrer";
+        frame.setAttribute("aria-label", `Watch ${video.title} on YouTube`);
+
+        const fallback = document.createElement("span");
+        fallback.className = "cyber-video-fallback";
+        fallback.setAttribute("aria-hidden", "true");
+        fallback.textContent = "🛡️";
+        frame.appendChild(fallback);
+
+        const thumbnail = document.createElement("img");
+        thumbnail.className = "cyber-video-thumbnail";
+        thumbnail.src = `https://i.ytimg.com/vi/${encodeURIComponent(video.id)}/hqdefault.jpg`;
+        thumbnail.alt = "";
+        thumbnail.loading = "lazy";
+        thumbnail.addEventListener("load", () => fallback.remove());
+        thumbnail.addEventListener("error", () => thumbnail.remove());
+        frame.appendChild(thumbnail);
+
+        const play = document.createElement("span");
+        play.className = "cyber-video-play";
+        play.setAttribute("aria-hidden", "true");
+        play.textContent = "▶";
+        frame.appendChild(play);
+
+        const content = document.createElement("div");
+        content.className = "cyber-video-content";
+        const tags = document.createElement("div");
+        tags.className = "cyber-video-tag-row";
+        const topic = document.createElement("span");
+        topic.className = "cyber-chip video-topic";
+        topic.textContent = video.topic;
+        const source = document.createElement("span");
+        source.className = "cyber-video-source";
+        source.textContent = video.source;
+        tags.append(topic, source);
+
+        const title = document.createElement("h3");
+        title.className = "cyber-video-title";
+        title.textContent = video.title;
+        const description = document.createElement("p");
+        description.className = "cyber-video-description";
+        description.textContent = video.description;
+        const footer = document.createElement("div");
+        footer.className = "cyber-video-footer";
+        const number = document.createElement("span");
+        number.className = "cyber-chip";
+        number.textContent = `Video ${String(index + 1).padStart(2, "0")}`;
+        const watch = document.createElement("a");
+        watch.className = "cyber-video-watch-link";
+        watch.href = frame.href;
+        watch.target = "_blank";
+        watch.rel = "noopener noreferrer";
+        watch.textContent = "Watch Video ↗";
+        footer.append(number, watch);
+        content.append(tags, title, description, footer);
+        card.append(frame, content);
+        return card;
+    });
+    grid.replaceChildren(...cards);
+}
+
+renderCyberSafetyVideos();
+
+const incidentForm = document.getElementById("incidentForm");
+const incidentMessage = document.getElementById("incidentMessage");
+const incidentList = document.getElementById("studentIncidentList");
+
+function formatLabel(value) {
+    return String(value || "").replace(/[_-]+/g, " ").replace(/\b\w/g, function (letter) {
+        return letter.toUpperCase();
+    });
+}
+
+function setMessage(text, type) {
+    incidentMessage.textContent = text || "";
+    incidentMessage.className = "cyber-alert visible " + (type === "error" ? "error" : "success");
+}
+
+function renderStudentIncidents(incidents) {
+    incidentList.textContent = "";
+
+    if (!incidents.length) {
+        const empty = document.createElement("div");
+        empty.className = "cyber-empty-state";
+        empty.innerHTML = '<span class="empty-icon" aria-hidden="true">🛡️</span><strong>No incident reports yet</strong><span>Your submitted reports will appear here.</span>';
+        incidentList.appendChild(empty);
+        return;
+    }
+
+    incidents.forEach(function (item) {
+        const article = document.createElement("article");
+        article.className = "cyber-report-item";
+
+        const meta = document.createElement("div");
+        meta.className = "cyber-report-meta";
+
+        const typeChip = document.createElement("span");
+        typeChip.className = "cyber-chip";
+        typeChip.textContent = formatLabel(item.incident_type || "Incident");
+
+        const statusChip = document.createElement("span");
+        statusChip.className = "cyber-chip status";
+        statusChip.textContent = item.status || "Submitted";
+
+        const severityChip = document.createElement("span");
+        severityChip.className = "cyber-chip severity";
+        severityChip.textContent = item.severity || "Medium";
+
+        meta.append(typeChip, statusChip, severityChip);
+
+        const head = document.createElement("div");
+        head.className = "cyber-report-head";
+
+        const title = document.createElement("h3");
+        title.textContent = item.title || "Untitled incident";
+
+        head.appendChild(title);
+
+        const description = document.createElement("p");
+        description.className = "cyber-report-desc";
+        description.textContent = item.description || "No description provided.";
+
+        const date = document.createElement("p");
+        date.className = "cyber-report-date";
+        date.textContent = item.created_at || "Submitted recently";
+
+        article.append(meta, head, description, date);
+
+        if (item.evidence_url) {
+            const link = document.createElement("a");
+            link.href = item.evidence_url;
+            link.textContent = "Open evidence";
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.className = "cyber-evidence-link";
+            article.appendChild(link);
+        }
+
+        incidentList.appendChild(article);
+    });
+}
+
+async function loadStudentIncidents() {
+    try {
+        const response = await fetch("/api/student/cyber-incidents");
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to load your reports.");
+        renderStudentIncidents(result.incidents || []);
+    } catch (error) {
+        const failure = document.createElement("div");
+        failure.className = "cyber-empty-state";
+        failure.innerHTML = '<span class="empty-icon" aria-hidden="true">⚠️</span><strong>Unable to load reports</strong><span>' + (error.message || "Unable to load your reports.") + '</span>';
+        incidentList.replaceChildren(failure);
+    }
+}
+
+incidentForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    setMessage("Submitting report...", "success");
+
+    const payload = {
+        incident_type: document.getElementById("incidentType").value,
+        title: document.getElementById("incidentTitle").value.trim(),
+        description: document.getElementById("incidentDescription").value.trim(),
+        evidence_url: document.getElementById("incidentEvidence").value.trim()
+    };
+
+    try {
+        const response = await fetch("/api/student/cyber-incidents", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to submit your report.");
+
+        setMessage("Incident report submitted successfully.", "success");
+        incidentForm.reset();
+        await loadStudentIncidents();
+    } catch (error) {
+        setMessage(error.message || "Unable to submit your report.", "error");
+    }
+});
+
+loadStudentIncidents();
+</script>
+
+</body>
+
+</html>

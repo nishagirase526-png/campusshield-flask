@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notices & Events - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            🛡️ CampusShield
+        </div>
+
+        <div class="nav-links">
+            <a href="student-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+
+    </nav>
+
+
+    <main class="notices-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">STUDENT MODULE</p>
+
+            <h1>Notices & Events</h1>
+
+            <p>
+                Stay updated with important college announcements and events.
+            </p>
+
+        </div>
+
+        <section class="notice-section">
+
+            <h2>📢 College Notices</h2>
+
+
+            <div id="studentNoticeList" aria-live="polite">Loading notices...</div>
+
+        </section>
+
+
+        <section class="notice-section" id="upcomingEvents">
+
+            <h2>📅 Upcoming Events</h2>
+
+
+            <div id="studentEventList" aria-live="polite">Loading events...</div>
+
+        </section>
+
+    </main>
+
+</body>
+
+<script>
+async function loadCollegeUpdates() {
+    const noticeList = document.getElementById("studentNoticeList");
+    const eventList = document.getElementById("studentEventList");
+    const addText = (parent, tag, text) => {
+        const node = document.createElement(tag);
+        node.textContent = text || "";
+        parent.appendChild(node);
+        return node;
+    };
+    const showMessage = (parent, text, isError) => {
+        const message = document.createElement("p");
+        message.className = isError ? "empty-state error" : "empty-state";
+        message.setAttribute("role", "status");
+        message.textContent = text;
+        parent.replaceChildren(message);
+    };
+    const readNoticeResponse = async response => {
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.toLowerCase().includes("application/json")) {
+            throw new Error(response.ok
+                ? "The notices service returned an unexpected response."
+                : "Unable to load notices (HTTP " + response.status + ").");
+        }
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (error) {
+            throw new Error("The notices service returned invalid JSON.");
+        }
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Unable to load notices (HTTP " + response.status + ").");
+        }
+        return data;
+    };
+    try {
+        const [noticeResponse, eventResponse] = await Promise.all([
+            fetch("/api/student/notices"), fetch("/api/student/events")
+        ]);
+        const [noticeData, eventData] = await Promise.all([
+            readNoticeResponse(noticeResponse), eventResponse.json()
+        ]);
+        noticeList.textContent = "";
+        const notices = noticeData.notices || [];
+        if (!notices.length) showMessage(noticeList, "No notices are available right now.");
+        notices.forEach(notice => {
+            const card = document.createElement("article");
+            card.className = "notice-card";
+            const date = document.createElement("div");
+            date.className = "notice-date";
+            const publishDate = notice.publish_at ? new Date(notice.publish_at) : new Date(notice.created_at);
+            date.textContent = publishDate.toLocaleDateString(undefined, { day: "2-digit", month: "short" }).toUpperCase();
+            card.appendChild(date);
+            const content = document.createElement("div");
+            addText(content, "h3", notice.title);
+            addText(content, "p", notice.description);
+            if (notice.attachment_url) {
+                const link = document.createElement("a");
+                link.href = notice.attachment_url;
+                link.textContent = "Open attachment";
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                content.appendChild(link);
+            }
+            card.appendChild(content);
+            noticeList.appendChild(card);
+        });
+        eventList.textContent = "";
+        const events = eventData.events || [];
+        if (!eventResponse.ok || !eventData.success) throw new Error(eventData.message || "Unable to load events.");
+        if (!events.length) showMessage(eventList, "No events are scheduled right now.");
+        events.forEach(event => {
+            const card = document.createElement("article");
+            card.className = "event-card";
+            const content = document.createElement("div");
+            addText(content, "h3", event.title);
+            addText(content, "p", event.start_datetime ? new Date(event.start_datetime).toLocaleString() : "Date to be announced");
+            if (event.description) addText(content, "p", event.description);
+            if (event.venue) addText(content, "p", "Venue: " + event.venue);
+            card.appendChild(content);
+            eventList.appendChild(card);
+        });
+    } catch (error) {
+        showMessage(noticeList, error.message || "Unable to load notices.", true);
+        showMessage(eventList, error.message || "Unable to load events.", true);
+    }
+}
+loadCollegeUpdates();
+</script>
+
+</html>

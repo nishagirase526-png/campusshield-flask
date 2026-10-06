@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>User Management - CampusShield</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06), 0 4px 16px -2px rgba(109, 40, 217, 0.10), 0 4px 16px -2px rgba(219, 39, 119, 0.08);
+            text-align: center;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.09), 0 6px 20px -2px rgba(109, 40, 217, 0.18), 0 6px 20px -2px rgba(219, 39, 119, 0.14);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            margin: 5px 0;
+        }
+
+        .stat-card p {
+            margin: 0;
+            color: #666;
+        }
+
+        .search-box {
+            margin: 20px 0;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12), 0 0 10px rgba(109, 40, 217, 0.14);
+        }
+
+        #addUserForm {
+            max-width: 700px;
+            margin: 30px auto 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px 30px;
+        }
+
+        #addUserForm > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #addUserForm label {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        #addUserForm input,
+        #addUserForm select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #d8d8d8;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #fff;
+        }
+
+        #addUserForm input:focus,
+        #addUserForm select:focus {
+            outline: none;
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12), 0 0 10px rgba(109, 40, 217, 0.14);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 48px !important;
+        }
+
+        .show-password-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+        }
+
+        #addUserForm button[type="submit"],
+        #departmentForm button[type="submit"] {
+            grid-column: 1 / -1;
+            width: 220px;
+            margin: 5px auto 0;
+            padding: 13px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            background: #111827;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32), 0 0 10px rgba(109, 40, 217, 0.16);
+            transition: all 0.22s ease;
+        }
+
+        #addUserForm button[type="submit"]:hover,
+        #departmentForm button[type="submit"]:hover {
+            background: #1f2937;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 14px rgba(124, 58, 237, 0.24);
+            transform: translateY(-1px);
+        }
+
+        #departmentForm {
+            max-width: 700px;
+            margin: 30px auto 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 30px;
+        }
+
+        #departmentForm > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #departmentForm label {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        #departmentForm input,
+        #departmentForm select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #d8d8d8;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #fff;
+        }
+
+        #departmentForm input[type="checkbox"] {
+            width: auto;
+            margin: 0 8px 0 0;
+        }
+
+        #departmentForm input:focus,
+        #departmentForm select:focus {
+            outline: none;
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12), 0 0 10px rgba(109, 40, 217, 0.14);
+        }
+
+        #departmentStatus {
+            max-width: 700px;
+            margin: 10px auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .edit-btn,
+        .delete-btn,
+        .manage-portal-btn,
+        .approve-btn,
+        .reject-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .edit-btn {
+            background: #eef2ff;
+            color: #3730a3;
+        }
+
+        .manage-portal-btn {
+            background: #f3e8ff;
+            color: #6b21a8;
+            border: 1px solid #d8b4fe;
+            font-weight: 600;
+        }
+
+        .manage-portal-btn:hover {
+            background: #ead7fb;
+        }
+
+        .delete-btn,
+        .reject-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .approve-btn {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .college-help {
+            font-size: 12px;
+            color: #777;
+            margin-top: 6px;
+        }
+
+        .other-college-box {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .other-college-title {
+            grid-column: 1 / -1;
+            font-weight: 700;
+            color: #3730a3;
+            margin-bottom: -5px;
+        }
+
+        .request-status {
+            grid-column: 1 / -1;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #475569;
+            display: none;
+        }
+
+        .request-college-btn {
+            grid-column: 1 / -1;
+            width: 250px;
+            margin: 5px auto 0;
+            padding: 13px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            background: #111827;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32), 0 0 10px rgba(109, 40, 217, 0.16);
+            transition: all 0.22s ease;
+        }
+
+        .request-college-btn:hover {
+            background: #1f2937;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 14px rgba(124, 58, 237, 0.24);
+        }
+
+        .request-college-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .request-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pending-badge {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .approved-badge {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .rejected-badge {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .request-section {
+            margin-top: 30px;
+        }
+
+        @media (max-width: 800px) {
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+
+            #addUserForm {
+                grid-template-columns: 1fr;
+            }
+
+            #departmentForm {
+                grid-template-columns: 1fr;
+            }
+
+            .other-college-box {
+                grid-template-columns: 1fr;
+            }
+
+            #addUserForm button[type="submit"] {
+                grid-column: auto;
+                width: 100%;
+            }
+
+            #departmentForm button[type="submit"] {
+                grid-column: auto;
+                width: 100%;
+            }
+
+            .request-college-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">
+            🛡️ CampusShield
+        </div>
+
+        <div class="nav-links">
+            <a href="admin-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+
+        <div class="dashboard-header">
+            <div>
+                <p class="tagline">ADMIN PORTAL</p>
+
+                <h1>User Management</h1>
+
+                <p>
+                    Manage students, faculty and user accounts
+                    across registered colleges.
+                </p>
+            </div>
+        </div>
+
+        <!-- STATS -->
+
+        <div class="user-stats">
+
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🎓</div>
+                <h3 id="studentCount">0</h3>
+                <p>Total Students</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">👩‍🏫</div>
+                <h3 id="facultyCount">0</h3>
+                <p>Total Faculty</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <h3 id="totalUserCount">0</h3>
+                <p>Total Users</p>
+            </div>
+
+        </div>
+
+        <!-- MANAGEMENT CARDS -->
+
+        <div class="dashboard-cards">
+
+            <div class="dashboard-card">
+                <div class="card-icon">👨‍🎓</div>
+
+                <h3>Students</h3>
+
+                <p>
+                    View and manage student accounts.
+                </p>
+
+                <button type="button" id="viewStudents">
+                    View Students
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">👩‍🏫</div>
+
+                <h3>Faculty</h3>
+
+                <p>
+                    View and manage faculty accounts.
+                </p>
+
+                <button type="button" id="viewFaculty">
+                    View Faculty
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">➕</div>
+
+                <h3>Add User</h3>
+
+                <p>
+                    Create a new student or faculty account.
+                </p>
+
+                <button type="button" id="openAddUser">
+                    Add User
+                </button>
+            </div>
+
+        </div>
+
+        <!-- STUDENTS -->
+
+        <div class="users-section">
+
+            <div class="users-header">
+                <div>
+
+                    <p class="tagline">
+                        STUDENT MANAGEMENT
+                    </p>
+
+                    <h2>Students</h2>
+
+                    <p>
+                        Registered students in CampusShield.
+                    </p>
+
+                </div>
+
+                <button type="button" id="refreshStudents">
+                    🔄 Refresh
+                </button>
+
+            </div>
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="studentSearch"
+                    placeholder="🔍 Search students by name or email..."
+                >
+
+            </div>
+
+            <div class="users-table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>College</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="studentsTableBody">
+
+                        <tr>
+                            <td colspan="5">
+                                Loading students...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- FACULTY -->
+
+        <div class="users-section">
+
+            <div class="users-header">
+
+                <div>
+
+                    <p class="tagline">
+                        FACULTY MANAGEMENT
+                    </p>
+
+                    <h2>Faculty</h2>
+
+                    <p>
+                        Registered faculty members in CampusShield.
+                    </p>
+
+                </div>
+
+                <button type="button" id="refreshFaculty">
+                    🔄 Refresh
+                </button>
+
+            </div>
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="facultySearch"
+                    placeholder="🔍 Search faculty by name or email..."
+                >
+
+            </div>
+
+            <div class="users-table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>College</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="facultyTableBody">
+
+                        <tr>
+                            <td colspan="5">
+                                Loading faculty...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ADD USER -->
+
+        <div
+            class="users-section"
+            id="addUserSection"
+        >
+
+            <div class="users-header">
+
+                <div>
+
+                    <p class="tagline">
+                        USER REGISTRATION
+                    </p>
+
+                    <h2>Add New User</h2>
+
+                    <p>
+                        Create a new student or faculty account.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <form id="addUserForm">
+
+                <div>
+
+                    <label for="userName">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="userName"
+                        placeholder="Enter full name"
+                        required
+                    >
+
+                </div>
+
+                <div>
+
+                    <label for="userEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="userEmail"
+                        placeholder="Enter email address"
+                        required
+                    >
+
+                </div>
+
+                <div>
+
+                    <label for="userCollege">
+                        College
+                    </label>
+
+                    <select id="userCollege" required>
+
+                        <option value="">
+                            Select College
+                        </option>
+
+                    </select>
+
+                    <div class="college-help">
+                        Only approved colleges are available
+                        for user registration.
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <label for="userRole">
+                        Role
+                    </label>
+
+                    <select id="userRole" required>
+
+                        <option value="">
+                            Select Role
+                        </option>
+
+                        <option value="student">
+                            Student
+                        </option>
+
+                        <option value="faculty">
+                            Faculty
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div id="facultyDepartmentGroup" style="display: none;">
+
+                    <label for="facultyDepartment">
+                        Faculty Department
+                    </label>
+
+                    <select id="facultyDepartment" disabled>
+                        <option value="">
+                            Select a college and faculty role first
+                        </option>
+                    </select>
+
+                    <div class="college-help" id="facultyDepartmentHelp">
+                        Select an active department belonging to the chosen college.
+                    </div>
+
+                </div>
+
+                <div id="studentClassGroup" style="display: none;">
+
+                    <label for="studentClass">
+                        Student Class
+                    </label>
+
+                    <select id="studentClass" disabled>
+                        <option value="">
+                            Select a college and student role first
+                        </option>
+                    </select>
+
+                    <div class="college-help" id="studentClassHelp">
+                        Select the student's class within the chosen college.
+                    </div>
+
+                    <label for="studentRollNumber">
+                        Roll Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="studentRollNumber"
+                        maxlength="50"
+                        placeholder="Enter roll number"
+                    >
+
+                </div>
+
+                <!-- OTHER COLLEGE -->
+
+                <div
+                    class="other-college-box"
+                    id="otherCollegeBox"
+                    style="display: none;"
+                >
+
+                    <div class="other-college-title">
+                        🏫 Request New College Registration
+                    </div>
+
+                    <div>
+
+                        <label for="otherCollegeName">
+                            College Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="otherCollegeName"
+                            placeholder="Enter college name"
+                        >
+
+                    </div>
+
+                    <div>
+
+                        <label for="otherCollegeCity">
+                            City
+                        </label>
+
+                        <input
+                            type="text"
+                            id="otherCollegeCity"
+                            placeholder="Enter city"
+                        >
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="request-college-btn"
+                        id="requestCollegeBtn"
+                    >
+                        📩 Send Request to Admin
+                    </button>
+
+                    <div
+                        class="request-status"
+                        id="requestStatus"
+                    ></div>
+
+                </div>
+
+                <!-- PASSWORD -->
+
+                <div>
+
+                    <label for="userPassword">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="userPassword"
+                            placeholder="Create password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-password-btn"
+                            id="togglePassword"
+                            title="Show password"
+                        >
+                            👁️
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="createUserBtn"
+                >
+                    Create User
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- DEPARTMENTS -->
+
+        <div class="users-section" id="departmentsSection">
+
+            <div class="users-header">
+
+                <div>
+                    <p class="tagline">FACULTY SETUP</p>
+                    <h2>Departments</h2>
+                    <p>Create a college-specific department before adding faculty.</p>
+                </div>
+
+                <button type="button" id="refreshDepartments">
+                    🔄 Refresh
+                </button>
+
+            </div>
+
+            <form id="departmentForm">
+
+                <div>
+                    <label for="departmentCollege">College</label>
+                    <select id="departmentCollege" required>
+                        <option value="">Select College</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="departmentName">Department Name</label>
+                    <input
+                        type="text"
+                        id="departmentName"
+                        maxlength="120"
+                        placeholder="e.g. Computer Science"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="departmentCode">Department Code</label>
+                    <input
+                        type="text"
+                        id="departmentCode"
+                        maxlength="30"
+                        placeholder="e.g. CSE"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label>
+                        <input type="checkbox" id="departmentActive" checked>
+                        Active (available for faculty assignment)
+                    </label>
+                </div>
+
+                <button type="submit" id="createDepartmentBtn">
+                    Create Department
+                </button>
+
+            </form>
+
+            <p id="departmentStatus" role="status" aria-live="polite"></p>
+
+            <div class="users-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Code</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="departmentsTableBody">
+                        <tr>
+                            <td colspan="3">Select a college to view departments.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- COLLEGE REQUESTS -->
+
+        <div
+            class="users-section request-section"
+            id="collegeRequestsSection"
+        >
+
+            <div class="users-header">
+
+                <div>
+
+                    <p class="tagline">
+                        COLLEGE APPROVAL
+                    </p>
+
+                    <h2>
+                        College Registration Requests
+                    </h2>
+
+                    <p>
+                        Review and approve colleges requested by users.
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="refreshCollegeRequests"
+                >
+                    🔄 Refresh
+                </button>
+
+            </div>
+
+            <div class="users-table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>College</th>
+                            <th>City</th>
+                            <th>Requested By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="collegeRequestsTableBody">
+
+                        <tr>
+                            <td colspan="7">
+                                Loading college requests...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="admin-users.js"></script>
+
+</body>
+
+</html>

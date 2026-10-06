@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Marks - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="faculty-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+
+    <main class="marks-page">
+
+        <div class="page-heading">
+            <p class="tagline">FACULTY PORTAL</p>
+
+            <h1>Student Marks</h1>
+
+            <p>
+                Manage and review student academic performance.
+            </p>
+        </div>
+
+
+        <div class="marks-card">
+
+            <h2>Enter Student Marks</h2>
+
+            <form class="marks-form" id="marksForm">
+
+                <label for="classSubjectId">Assigned class and subject</label>
+                <select id="classSubjectId" name="classSubjectId" required>
+                    <option value="">Loading your assignments...</option>
+                </select>
+
+                <label for="studentId">Student</label>
+                <select id="studentId" name="studentId" required disabled>
+                    <option value="">Select an assigned class and subject first</option>
+                </select>
+
+                <label for="examType">Exam type</label>
+                <input type="text" id="examType" name="examType"
+                    placeholder="e.g. Internal, Midterm, Final"
+                    maxlength="50" required>
+
+                <label for="marksObtained">Marks obtained</label>
+                <input type="number" id="marksObtained" name="marksObtained"
+                    placeholder="Enter marks" min="0" step="0.01" required>
+
+                <label for="maxMarks">Maximum marks</label>
+                <input type="number" id="maxMarks" name="maxMarks"
+                    value="100" min="1" step="0.01" required>
+
+                <button type="submit" id="saveMarksButton">
+                    Save Marks
+                </button>
+
+            </form>
+
+
+            <div id="marksMessage"></div>
+
+
+            <h2 class="table-title">Existing marks for this class and subject</h2>
+
+            <p id="marksEmpty" class="empty-state" aria-live="polite">
+                Select an assigned class and subject to view marks.
+            </p>
+
+            <table id="marksRecordsTable" hidden>
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Subject</th>
+                        <th>Exam</th>
+                        <th>Marks</th>
+                    </tr>
+                </thead>
+
+                <tbody id="marksTable">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        const marksForm = document.getElementById("marksForm");
+        const saveButton = document.getElementById("saveMarksButton");
+        const marksMessage = document.getElementById("marksMessage");
+        const marksTable = document.getElementById("marksTable");
+        const marksEmpty = document.getElementById("marksEmpty");
+        const marksRecordsTable = document.getElementById("marksRecordsTable");
+        const classSubjectSelect = document.getElementById("classSubjectId");
+        const studentSelect = document.getElementById("studentId");
+        const classSubjects = new Map();
+
+        async function readApiResponse(response) {
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                throw new Error(
+                    "The Faculty API returned a non-JSON response (HTTP " +
+                    response.status +
+                    "). Confirm the current CampusShield Flask server is running."
+                );
+            }
+            return response.json();
+        }
+
+        function showMessage(text, isError) {
+            marksMessage.textContent = text;
+            marksMessage.style.color = isError ? "#b42318" : "#027a48";
+        }
+
+        async function loadClassSubjects() {
+            try {
+                const response = await fetch("/api/faculty/class-subjects", {
+                    credentials: "include"
+                });
+                const data = await readApiResponse(response);
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Unable to load assigned classes.");
+                }
+
+                classSubjectSelect.replaceChildren();
+                const placeholder = document.createElement("option");
+                placeholder.value = "";
+                placeholder.textContent = data.class_subjects.length
+                    ? "Select an assigned class and subject"
+                    : "No assigned classes or subjects";
+                classSubjectSelect.appendChild(placeholder);
+                (data.class_subjects || []).forEach(function (item) {
+                    const option = document.createElement("option");
+                    option.value = item.class_subject_id;
+                    option.textContent = item.course_name + " — Year " +
+                        item.year_level + " " + item.division + ", " +
+                        item.subject_name + " (" + item.subject_code +
+                        "), Semester " + item.semester + " · " +
+                        item.academic_year;
+                    classSubjects.set(String(item.class_subject_id), item);
+                    classSubjectSelect.appendChild(option);
+                });
+                if (!data.class_subjects.length) {
+                    showMessage("No class subjects are assigned to your faculty account.", true);
+                }
+            } catch (error) {
+                classSubjectSelect.replaceChildren();
+                const option = document.createElement("option");
+                option.value = "";
+                option.textContent = "Unable to load assigned classes";
+                classSubjectSelect.appendChild(option);
+                showMessage(error.message || "Unable to load assigned classes.", true);
+            }
+        }
+
+        async function loadClassStudents() {
+            const classSubjectId = classSubjectSelect.value;
+            studentSelect.disabled = true;
+            studentSelect.replaceChildren();
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = classSubjectId
+                ? "Loading students..."
+                : "Select an assigned class and subject first";
+            studentSelect.appendChild(placeholder);
+            if (!classSubjectId) return;
+
+            try {
+                const response = await fetch(
+                    "/api/faculty/class-subjects/" +
+                        encodeURIComponent(classSubjectId) + "/students",
+                    { credentials: "include" }
+                );
+                const data = await readApiResponse(response);
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Unable to load students.");
+                }
+                studentSelect.replaceChildren();
+                const studentPlaceholder = document.createElement("option");
+                studentPlaceholder.value = "";
+                studentPlaceholder.textContent = data.students.length
+                    ? "Select a student"
+                    : "No active students in this class";
+                studentSelect.appendChild(studentPlaceholder);
+                (data.students || []).forEach(function (student) {
+                    const option = document.createElement("option");
+                    option.value = student.student_id;
+                    option.textContent = student.full_name + " · Roll " + student.roll_number;
+                    studentSelect.appendChild(option);
+                });
+                studentSelect.disabled = !data.students.length;
+            } catch (error) {
+                studentSelect.replaceChildren();
+                const errorOption = document.createElement("option");
+                errorOption.value = "";
+                errorOption.textContent = error.message || "Unable to load students.";
+                studentSelect.appendChild(errorOption);
+                showMessage(error.message || "Unable to load students.", true);
+            }
+        }
+
+        classSubjectSelect.addEventListener("change", loadClassStudents);
+
+        async function loadClassMarks() {
+            marksTable.replaceChildren();
+            marksRecordsTable.hidden = true;
+            if (!classSubjectSelect.value) {
+                marksEmpty.classList.remove("error");
+                marksEmpty.classList.add("empty-state");
+                marksEmpty.textContent =
+                    "Select an assigned class and subject to view marks.";
+                return;
+            }
+
+            marksEmpty.className = "empty-state";
+            marksEmpty.textContent = "Loading marks...";
+            try {
+                const query = new URLSearchParams({
+                    class_subject_id: classSubjectSelect.value
+                });
+                const response = await fetch(
+                    "/api/faculty/marks?" + query.toString(),
+                    { credentials: "include" }
+                );
+                const data = await readApiResponse(response);
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Unable to load marks.");
+                }
+                const records = data.records || [];
+                if (!records.length) {
+                    marksEmpty.textContent =
+                        "No marks are recorded for this class and subject yet.";
+                    return;
+                }
+
+                marksEmpty.textContent = "";
+                marksEmpty.className = "";
+                marksRecordsTable.hidden = false;
+                records.forEach(function (record) {
+                    const row = marksTable.insertRow();
+                    row.insertCell(0).textContent =
+                        record.student_name + " · Roll " + record.roll_number;
+                    row.insertCell(1).textContent =
+                        record.subject_name + " (" + record.subject_code + ")";
+                    row.insertCell(2).textContent = record.exam_type;
+                    row.insertCell(3).textContent =
+                        record.marks_obtained + " / " + record.max_marks;
+                });
+            } catch (error) {
+                marksEmpty.className = "empty-state error";
+                marksEmpty.textContent = error.message || "Unable to load marks.";
+            }
+        }
+
+        classSubjectSelect.addEventListener("change", loadClassMarks);
+
+        marksForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+            showMessage("");
+
+            const studentId = studentSelect.value;
+            const classSubjectId = classSubjectSelect.value;
+            const assignedSubject = classSubjects.get(classSubjectId);
+            const examType = document.getElementById("examType").value.trim();
+            const marksObtained = document.getElementById("marksObtained").value.trim();
+            const maxMarks = document.getElementById("maxMarks").value.trim();
+
+            if (!studentId || !assignedSubject || !examType || !marksObtained || !maxMarks) {
+                showMessage("Please fill all fields.", true);
+                return;
+            }
+
+            const payload = {
+                student_id: Number(studentId),
+                subject_id: Number(assignedSubject.subject_id),
+                exam_type: examType,
+                marks_obtained: Number(marksObtained),
+                max_marks: Number(maxMarks)
+            };
+
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+
+            try {
+
+                const response = await fetch("/api/faculty/marks", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await readApiResponse(response);
+
+                if (response.status === 401) {
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (response.status === 403) {
+                    showMessage(data.message || "Faculty access is required.", true);
+                    return;
+                }
+
+                if (!response.ok || !data.success) {
+                    showMessage(
+                        data.message || "Unable to save marks.",
+                        true
+                    );
+                    return;
+                }
+
+                showMessage(
+                    data.message || "Marks saved successfully.",
+                    false
+                );
+                await loadClassMarks();
+                studentSelect.value = "";
+                document.getElementById("examType").value = "";
+                document.getElementById("marksObtained").value = "";
+                document.getElementById("maxMarks").value = "100";
+
+            } catch (error) {
+                showMessage(error.message || "Unable to connect to the server.", true);
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = "Save Marks";
+            }
+
+        });
+
+        loadClassSubjects();
+
+    </script>
+
+</body>
+
+</html>

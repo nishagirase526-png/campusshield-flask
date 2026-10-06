@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">🛡️ CampusShield</div>
+    <div class="nav-links">
+        <a href="admin-dashboard.html">Dashboard</a>
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+    </div>
+</nav>
+
+<main class="dashboard">
+    <div class="dashboard-header">
+        <p class="tagline">ADMIN PORTAL</p>
+        <h1>Admin Profile</h1>
+        <p>Review your account details and college information.</p>
+    </div>
+
+    <section class="notice-section" aria-live="polite">
+        <div id="adminProfileCard" class="published-notice">
+            <h2>Profile Details</h2>
+            <p id="adminProfileText">Loading profile...</p>
+        </div>
+    </section>
+</main>
+
+<script>
+async function loadAdminProfile() {
+    const profileText = document.getElementById("adminProfileText");
+    try {
+        const response = await fetch("/api/admin/profile", { credentials: "include" });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to load admin profile.");
+        }
+
+        const profile = result.profile || {};
+        const name = profile.full_name || profile.name || "Admin";
+        const email = profile.email || "No email";
+        const phone = profile.mobile || "No phone";
+        const college = profile.college_name || profile.college || "College not assigned";
+        const status = profile.status || "active";
+
+        profileText.innerHTML = [
+            "<strong>Name:</strong> " + name + "<br>",
+            "<strong>Email:</strong> " + email + "<br>",
+            "<strong>Phone:</strong> " + phone + "<br>",
+            "<strong>College:</strong> " + college + "<br>",
+            "<strong>Role:</strong> " + (profile.role || "admin") + "<br>",
+            "<strong>Status:</strong> " + status
+        ].join("");
+    } catch (error) {
+        profileText.textContent = error.message || "Unable to load admin profile.";
+    }
+}
+
+loadAdminProfile();
+</script>
+
+</body>
+</html>

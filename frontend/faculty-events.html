@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <title>Manage Events - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="faculty-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+
+    <main class="faculty-events-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">FACULTY PORTAL</p>
+
+            <h1>Event Management</h1>
+
+            <p>
+                Create and publish college events for students.
+            </p>
+
+        </div>
+
+
+        <div class="event-manager">
+
+            <h2>Create New Event</h2>
+
+            <div class="event-form">
+
+                <label>Event Name</label>
+
+                <input
+                    type="text"
+                    id="eventName"
+                    placeholder="Enter event name"
+                >
+
+
+                <label>Event Date</label>
+
+                <input
+                    type="date"
+                    id="eventDate"
+                >
+
+
+                <label>Event Time</label>
+
+                <input
+                    type="time"
+                    id="eventTime"
+                >
+
+
+                <label>Venue</label>
+
+                <input
+                    type="text"
+                    id="eventVenue"
+                    placeholder="Enter venue"
+                >
+
+
+                <label>Event Description</label>
+
+                <textarea
+                    id="eventDescription"
+                    rows="4"
+                    placeholder="Enter event details..."
+                ></textarea>
+
+
+                <button
+                    type="button"
+                    onclick="publishEvent()"
+                >
+                    Publish Event
+                </button>
+
+            </div>
+
+
+            <div id="eventMessage"></div>
+
+
+            <h2 class="published-events-title">
+                Published Events
+            </h2>
+
+
+            <div id="eventList" aria-live="polite">Loading events...</div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+        const eventMessage = document.getElementById("eventMessage");
+        const eventList = document.getElementById("eventList");
+        function showEvents(events) {
+            eventList.textContent = "";
+            if (!events.length) { eventList.textContent = "No events have been published."; return; }
+            events.forEach(item => {
+                const card = document.createElement("article"); card.className = "published-event";
+                const title = document.createElement("h3"); title.textContent = item.title || "";
+                const description = document.createElement("p"); description.textContent = item.description || "";
+                const details = document.createElement("span");
+                const when = item.start_datetime ? new Date(item.start_datetime) : null;
+                details.textContent = (when ? "📅 " + when.toLocaleDateString() + " | 🕐 " + when.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}) : "") + (item.venue ? " | 📍 " + item.venue : "");
+                card.append(title, description, details); eventList.appendChild(card);
+            });
+        }
+        async function loadEvents() {
+            try {
+                const response = await fetch("/api/faculty/events"); const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message || "Unable to load events.");
+                showEvents(result.events || []);
+            } catch (error) { eventList.textContent = error.message; }
+        }
+        async function publishEvent() {
+            eventMessage.textContent = "";
+            const payload = {
+                name: document.getElementById("eventName").value.trim(),
+                event_date: document.getElementById("eventDate").value,
+                event_time: document.getElementById("eventTime").value,
+                venue: document.getElementById("eventVenue").value.trim(),
+                description: document.getElementById("eventDescription").value.trim()
+            };
+            try {
+                const response = await fetch("/api/faculty/events", {
+                    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message || "Unable to publish event.");
+                eventMessage.textContent = result.message;
+                ["eventName", "eventDate", "eventTime", "eventVenue", "eventDescription"].forEach(id => document.getElementById(id).value = "");
+                await loadEvents();
+            } catch (error) { eventMessage.textContent = error.message; }
+        }
+        loadEvents();
+    </script>
+
+</body>
+
+</html>

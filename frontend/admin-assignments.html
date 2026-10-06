@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Assignments - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">🛡️ CampusShield</div>
+    <div class="nav-links">
+        <a href="admin-dashboard.html">Dashboard</a>
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+    </div>
+</nav>
+
+<main class="dashboard">
+    <div class="dashboard-header">
+        <p class="tagline">ADMIN PORTAL</p>
+        <h1>Assignments Overview</h1>
+        <p>Review assignment records shared across the college.</p>
+    </div>
+
+    <section class="notice-section" aria-live="polite">
+        <h2>College Assignments</h2>
+        <div id="assignmentList">Loading assignments...</div>
+    </section>
+</main>
+
+<script>
+async function loadAdminAssignments() {
+    const list = document.getElementById("assignmentList");
+    try {
+        const response = await fetch("/api/admin/assignments", { credentials: "include" });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to load assignments.");
+        }
+
+        list.textContent = "";
+        const assignments = result.assignments || [];
+        if (!assignments.length) {
+            const empty = document.createElement("p");
+            empty.className = "empty-state";
+            empty.textContent = "No assignments have been created yet.";
+            list.appendChild(empty);
+            return;
+        }
+
+        assignments.forEach(item => {
+            const card = document.createElement("article");
+            card.className = "published-notice";
+
+            const title = document.createElement("h3");
+            title.textContent = item.title || "Untitled assignment";
+
+            const meta = document.createElement("p");
+            const classLabel = item.course_name || "Course";
+            const subjectLabel = item.subject_name || "Subject";
+            const divLabel = item.division ? " - " + item.division : "";
+            meta.textContent = [classLabel, subjectLabel + divLabel, "Year " + (item.year_level || "")].filter(Boolean).join(" · ");
+
+            const description = document.createElement("p");
+            description.textContent = item.description || "No description provided.";
+
+            const details = document.createElement("span");
+            details.textContent = "Due: " + (item.due_date || "Not set") + " · Created by: " + (item.created_by_name || "System");
+
+            card.append(title, meta, description, details);
+            list.appendChild(card);
+        });
+    } catch (error) {
+        const failure = document.createElement("p");
+        failure.className = "empty-state error";
+        failure.textContent = error.message || "Unable to load assignments.";
+        list.replaceChildren(failure);
+    }
+}
+
+loadAdminAssignments();
+</script>
+
+</body>
+</html>

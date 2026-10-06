@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="faculty-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+
+    <main class="faculty-students-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">FACULTY PORTAL</p>
+
+            <h1>Student Management</h1>
+
+            <p>
+                View and manage student information.
+            </p>
+
+        </div>
+
+
+        <div class="student-manager">
+
+            <div class="student-header">
+
+                <h2>Student List</h2>
+
+                <input
+                    type="text"
+                    id="studentSearch"
+                    placeholder="Search student..."
+                    onkeyup="searchStudents()"
+                >
+
+            </div>
+
+
+            <div class="student-table-container">
+
+                <table id="studentTable">
+
+                    <thead>
+
+                        <tr>
+                            <th>Roll No.</th>
+                            <th>Student Name</th>
+                            <th>Course</th>
+                            <th>Semester</th>
+                            <th>Email</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="studentRows">
+                        <tr><td colspan="5" class="empty-state">Loading assigned students...</td></tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        function searchStudents() {
+            const search = document.getElementById("studentSearch").value.toLowerCase();
+            document.querySelectorAll("#studentRows tr").forEach(function (row) {
+                row.style.display = row.textContent.toLowerCase().includes(search) ? "" : "none";
+            });
+        }
+
+        async function loadFacultyStudents() {
+            const rows = document.getElementById("studentRows");
+            try {
+                const response = await fetch("/api/faculty/students", {
+                    credentials: "include"
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || "Unable to load assigned students.");
+                }
+
+                rows.replaceChildren();
+                const students = result.students || [];
+                if (!students.length) {
+                    const row = rows.insertRow();
+                    const cell = row.insertCell();
+                    cell.className = "empty-state";
+                    cell.setAttribute("role", "status");
+                    cell.colSpan = 5;
+                    cell.textContent = "No active students are enrolled in your assigned classes.";
+                    return;
+                }
+
+                students.forEach(function (student) {
+                    const row = rows.insertRow();
+                    [
+                        student.roll_number,
+                        student.full_name,
+                        student.course,
+                        "Semester " + student.semester,
+                        student.email
+                    ].forEach(function (value) {
+                        row.insertCell().textContent = value || "—";
+                    });
+                });
+            } catch (error) {
+                rows.replaceChildren();
+                const row = rows.insertRow();
+                const cell = row.insertCell();
+                cell.className = "empty-state error";
+                cell.setAttribute("role", "status");
+                cell.colSpan = 5;
+                cell.textContent = error.message || "Unable to load assigned students.";
+            }
+        }
+
+        loadFacultyStudents();
+
+    </script>
+
+</body>
+
+</html>

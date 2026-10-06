@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Timetable - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .faculty-timetable-wrap { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
+        .faculty-timetable-panel { overflow-x: auto; background: #fff; border: 1px solid #dfe7f5; border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(15,23,42,.06); }
+        .faculty-timetable-panel table { width: 100%; border-collapse: collapse; min-width: 620px; }
+        .faculty-timetable-panel th, .faculty-timetable-panel td { padding: 13px 15px; border-bottom: 1px solid #e8edf5; text-align: left; }
+        .faculty-timetable-panel th { background: #f5f7ff; color: #334155; }
+        #timetableStatus { padding: 20px; color: #475569; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+        <div class="nav-links">
+            <a href="faculty-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+    <main class="faculty-timetable-wrap">
+        <div class="page-heading">
+            <p class="tagline">FACULTY MODULE</p>
+            <h1>Teaching Timetable</h1>
+            <p>View your assigned classes and weekly teaching schedule.</p>
+        </div>
+        <section class="faculty-timetable-panel" aria-live="polite">
+            <div id="timetableStatus">Loading timetable...</div>
+            <table id="timetableTable" hidden>
+                <thead><tr><th>Day</th><th>Subject</th><th>Class</th><th>Time</th><th>Room</th></tr></thead>
+                <tbody id="timetableBody"></tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        const statusBox = document.getElementById("timetableStatus");
+        const table = document.getElementById("timetableTable");
+        const tbody = document.getElementById("timetableBody");
+        async function loadTimetable() {
+            try {
+                const response = await fetch("/api/faculty/timetable", { credentials: "include" });
+                const contentType = response.headers.get("content-type") || "";
+                if (!contentType.includes("application/json")) throw new Error("The timetable service returned an unexpected response.");
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message || "Unable to load timetable.");
+                const entries = result.timetable || [];
+                if (!entries.length) { statusBox.textContent = "No timetable assignments found."; return; }
+                entries.forEach((entry) => {
+                    const row = document.createElement("tr");
+                    [entry.day_of_week || "—", [entry.subject_name, entry.subject_code ? `(${entry.subject_code})` : ""].filter(Boolean).join(" ") || "—",
+                     [entry.class_year ? `Year ${entry.class_year}` : "", entry.class_division ? `Division ${entry.class_division}` : ""].filter(Boolean).join(" · ") || "—",
+                     `${entry.start_time || "—"} – ${entry.end_time || "—"}`, entry.room || "—"].forEach((value) => {
+                        const cell = document.createElement("td"); cell.textContent = value; row.appendChild(cell);
+                    });
+                    tbody.appendChild(row);
+                });
+                statusBox.hidden = true; table.hidden = false;
+            } catch (error) {
+                statusBox.textContent = "Unable to load timetable. Please try again.";
+                statusBox.className = "empty-state error";
+            }
+        }
+        loadTimetable();
+    </script>
+</body>
+</html>

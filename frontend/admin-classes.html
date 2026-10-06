@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Management - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .page-shell {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px 40px;
+        }
+
+        .panel {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.06), 0 4px 16px -2px rgba(109, 40, 217, 0.10), 0 4px 16px -2px rgba(219, 39, 119, 0.08);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px 24px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        input, select, button {
+            font: inherit;
+        }
+
+        input, select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1px solid #dbe1ea;
+            border-radius: 10px;
+            background: white;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12), 0 0 10px rgba(109, 40, 217, 0.14);
+        }
+
+        .submit-btn {
+            width: 220px;
+            margin-top: 8px;
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            background: #111827;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32), 0 0 10px rgba(109, 40, 217, 0.16);
+            transition: all 0.22s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1f2937;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 14px rgba(124, 58, 237, 0.24);
+        }
+
+        .status-box {
+            margin-top: 18px;
+            min-height: 24px;
+            font-weight: 600;
+        }
+
+        .status-box.success {
+            color: #166534;
+        }
+
+        .status-box.error {
+            color: #b91c1c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf2f7;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #1f2937;
+        }
+
+        .empty-state {
+            color: #64748b;
+            padding: 16px 0;
+        }
+
+        @media (max-width: 700px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+        <div class="nav-links">
+            <a href="admin-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <div class="dashboard-header">
+            <div>
+                <p class="tagline">ADMIN PORTAL</p>
+                <h1>Class Management</h1>
+                <p>Create and manage college classes and courses used by student accounts.</p>
+            </div>
+        </div>
+
+        <section class="panel">
+            <h2>Create Class</h2>
+            <form id="classForm">
+                <div class="two-col">
+                    <div class="field">
+                        <label for="collegeSelect">College</label>
+                        <select id="collegeSelect" required>
+                            <option value="">Select College</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="courseName">Course Name</label>
+                        <input id="courseName" type="text" placeholder="e.g. BCA" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="courseCode">Course Code</label>
+                        <input id="courseCode" type="text" placeholder="e.g. BCA" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="academicYear">Academic Year</label>
+                        <input id="academicYear" type="text" placeholder="e.g. 2026-2027" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="semester">Semester</label>
+                        <select id="semester" required>
+                            <option value="">Select Semester</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="yearLevel">Year Level</label>
+                        <select id="yearLevel" required>
+                            <option value="">Select Year</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="division">Division</label>
+                        <input id="division" type="text" placeholder="e.g. A" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Create Class</button>
+            </form>
+            <div id="classStatus" class="status-box" aria-live="polite"></div>
+        </section>
+
+        <section class="panel">
+            <h2>Existing Classes</h2>
+            <div id="classListContainer"></div>
+        </section>
+    </main>
+
+    <script>
+        const collegeSelect = document.getElementById('collegeSelect');
+        const classForm = document.getElementById('classForm');
+        const classStatus = document.getElementById('classStatus');
+        const classListContainer = document.getElementById('classListContainer');
+
+        async function loadColleges() {
+            try {
+                const response = await fetch('/api/colleges');
+                if (!response.ok) {
+                    throw new Error('Unable to load colleges.');
+                }
+                const colleges = await response.json();
+                const list = Array.isArray(colleges) ? colleges : [];
+                collegeSelect.innerHTML = '<option value="">Select College</option>';
+                list.forEach(function (college) {
+                    const option = document.createElement('option');
+                    option.value = String(college.id);
+                    option.textContent = (college.name || 'College') + ' (' + (college.code || 'Code') + ')';
+                    collegeSelect.appendChild(option);
+                });
+            } catch (error) {
+                collegeSelect.innerHTML = '<option value="">Unable to load colleges</option>';
+                classStatus.textContent = error.message || 'Unable to load colleges.';
+                classStatus.className = 'status-box error';
+            }
+        }
+
+        async function loadClasses() {
+            const collegeId = collegeSelect.value;
+            classListContainer.innerHTML = '<p class="empty-state">Select a college to see classes.</p>';
+
+            if (!collegeId) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/classes?college_id=' + encodeURIComponent(collegeId));
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Unable to load classes.');
+                }
+
+                const classes = Array.isArray(data.classes) ? data.classes : [];
+                if (!classes.length) {
+                    classListContainer.innerHTML = '<p class="empty-state">No classes are available for this college yet.</p>';
+                    return;
+                }
+
+                const rows = classes.map(function (item) {
+                    return `
+                        <tr>
+                            <td>${item.course || 'Course'}</td>
+                            <td>${item.academic_year || '-'}</td>
+                            <td>${item.semester || '-'}</td>
+                            <td>${item.year_level || '-'}</td>
+                            <td>${item.division || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                classListContainer.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Academic Year</th>
+                                <th>Semester</th>
+                                <th>Year</th>
+                                <th>Division</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                `;
+            } catch (error) {
+                classListContainer.innerHTML = '<p class="empty-state">Unable to load classes for this college.</p>';
+                classStatus.textContent = error.message || 'Unable to load classes.';
+                classStatus.className = 'status-box error';
+            }
+        }
+
+        collegeSelect.addEventListener('change', loadClasses);
+
+        classForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            classStatus.textContent = '';
+            classStatus.className = 'status-box';
+
+            const payload = {
+                college_id: Number(collegeSelect.value),
+                course_name: document.getElementById('courseName').value.trim(),
+                course_code: document.getElementById('courseCode').value.trim(),
+                academic_year: document.getElementById('academicYear').value.trim(),
+                semester: Number(document.getElementById('semester').value),
+                year_level: Number(document.getElementById('yearLevel').value),
+                division: document.getElementById('division').value.trim()
+            };
+
+            if (!payload.college_id || !payload.course_name || !payload.course_code || !payload.academic_year || !payload.division || !payload.semester || !payload.year_level) {
+                classStatus.textContent = 'Please complete all fields.';
+                classStatus.className = 'status-box error';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/classes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Unable to create class.');
+                }
+
+                classStatus.textContent = data.message || 'Class created successfully.';
+                classStatus.className = 'status-box success';
+                classForm.reset();
+                await loadClasses();
+            } catch (error) {
+                classStatus.textContent = error.message || 'Unable to create class.';
+                classStatus.className = 'status-box error';
+            }
+        });
+
+        loadColleges();
+    </script>
+</body>
+</html>

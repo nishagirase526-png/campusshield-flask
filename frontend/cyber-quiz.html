@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cyber Security Quiz - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="Cyber-safety.html">Cyber Safety</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+
+    <main class="quiz-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">CYBER SAFETY LEARNING</p>
+
+            <h1>Cyber Security Quiz</h1>
+
+            <p>Test your basic cyber security knowledge.</p>
+
+        </div>
+
+
+        <div class="quiz-box">
+
+            <div class="quiz-question">
+                <h3>1. What is phishing?</h3>
+
+                <label>
+                    <input type="radio" name="q1" value="0">
+                    A type of computer hardware
+                </label>
+
+                <label>
+                    <input type="radio" name="q1" value="1">
+                    A fake attempt to steal information
+                </label>
+
+                <label>
+                    <input type="radio" name="q1" value="0">
+                    A programming language
+                </label>
+            </div>
+
+
+            <div class="quiz-question">
+                <h3>2. Which password is stronger?</h3>
+
+                <label>
+                    <input type="radio" name="q2" value="0">
+                    123456
+                </label>
+
+                <label>
+                    <input type="radio" name="q2" value="1">
+                    Nisha@2026!Safe
+                </label>
+
+                <label>
+                    <input type="radio" name="q2" value="0">
+                    password
+                </label>
+            </div>
+
+
+            <div class="quiz-question">
+                <h3>3. What does HTTPS indicate?</h3>
+
+                <label>
+                    <input type="radio" name="q3" value="1">
+                    An encrypted connection
+                </label>
+
+                <label>
+                    <input type="radio" name="q3" value="0">
+                    A computer virus
+                </label>
+
+                <label>
+                    <input type="radio" name="q3" value="0">
+                    A social media account
+                </label>
+            </div>
+
+
+            <div class="quiz-question">
+                <h3>4. What is 2FA?</h3>
+
+                <label>
+                    <input type="radio" name="q4" value="0">
+                    Two File Access
+                </label>
+
+                <label>
+                    <input type="radio" name="q4" value="1">
+                    Two-Factor Authentication
+                </label>
+
+                <label>
+                    <input type="radio" name="q4" value="0">
+                    Two Firewall Applications
+                </label>
+            </div>
+
+
+            <div class="quiz-question">
+                <h3>5. What should you do with a suspicious link?</h3>
+
+                <label>
+                    <input type="radio" name="q5" value="1">
+                    Avoid clicking it and verify it first
+                </label>
+
+                <label>
+                    <input type="radio" name="q5" value="0">
+                    Click it immediately
+                </label>
+
+                <label>
+                    <input type="radio" name="q5" value="0">
+                    Share it with friends
+                </label>
+            </div>
+
+
+            <button onclick="calculateQuizScore()">
+                Submit Quiz
+            </button>
+
+
+            <div id="quizResult"></div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        function calculateQuizScore() {
+
+            let score = 0;
+
+            for (let i = 1; i <= 5; i++) {
+
+                const answer =
+                    document.querySelector(
+                        'input[name="q' + i + '"]:checked'
+                    );
+
+                if (answer) {
+                    score += Number(answer.value);
+                }
+            }
+
+
+            const result =
+                document.getElementById("quizResult");
+
+
+            if (score === 5) {
+
+                result.innerHTML =
+                    "🏆 Excellent! Score: 5/5";
+
+            }
+
+            else if (score >= 3) {
+
+                result.innerHTML =
+                    "👏 Good job! Score: " + score + "/5";
+
+            }
+
+            else {
+
+                result.innerHTML =
+                    "📚 Keep learning! Score: " + score + "/5";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

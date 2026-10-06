@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <title>Manage Notices - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="faculty-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+
+    <main class="faculty-notices-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">FACULTY PORTAL</p>
+
+            <h1>Notice Management</h1>
+
+            <p>
+                Create and publish important notices for students.
+            </p>
+
+        </div>
+
+
+        <div class="notice-manager">
+
+            <h2>Create New Notice</h2>
+
+            <div class="notice-form">
+
+                <label>Notice Title</label>
+
+                <input
+                    type="text"
+                    id="noticeTitle"
+                    placeholder="Enter notice title"
+                >
+
+
+                <label>Notice Date (publication is immediate)</label>
+
+                <input
+                    type="date"
+                    id="noticeDate"
+                >
+
+
+                <label>Notice Details</label>
+
+                <textarea
+                    id="noticeDetails"
+                    rows="5"
+                    placeholder="Enter notice details..."
+                ></textarea>
+
+
+                <button
+                    type="button"
+                    onclick="publishNotice()"
+                >
+                    Publish Notice
+                </button>
+
+            </div>
+
+
+            <div id="noticeMessage"></div>
+
+
+            <h2 class="published-notices-title">
+                Published Notices
+            </h2>
+
+
+            <div id="noticeList" aria-live="polite">Loading notices...</div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+        const noticeMessage = document.getElementById("noticeMessage");
+        const noticeList = document.getElementById("noticeList");
+        function showNotices(notices) {
+            noticeList.textContent = "";
+            if (!notices.length) { noticeList.textContent = "No notices have been published."; return; }
+            notices.forEach(item => {
+                const card = document.createElement("article"); card.className = "published-notice";
+                const title = document.createElement("h3"); title.textContent = item.title || "";
+                const details = document.createElement("p"); details.textContent = item.description || "";
+                const date = document.createElement("span"); date.textContent = "Date: " + (item.publish_at || item.created_at || "");
+                card.append(title, details, date); noticeList.appendChild(card);
+            });
+        }
+        async function loadNotices() {
+            try {
+                const response = await fetch("/api/faculty/notices"); const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message || "Unable to load notices.");
+                showNotices(result.notices || []);
+            } catch (error) { noticeList.textContent = error.message; }
+        }
+        async function publishNotice() {
+            noticeMessage.textContent = "";
+            const payload = {
+                title: document.getElementById("noticeTitle").value.trim(),
+                publish_date: document.getElementById("noticeDate").value,
+                description: document.getElementById("noticeDetails").value.trim()
+            };
+            try {
+                const response = await fetch("/api/faculty/notices", {
+                    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message || "Unable to publish notice.");
+                noticeMessage.textContent = result.message;
+                document.getElementById("noticeTitle").value = "";
+                document.getElementById("noticeDate").value = "";
+                document.getElementById("noticeDetails").value = "";
+                await loadNotices();
+            } catch (error) { noticeMessage.textContent = error.message; }
+        }
+        loadNotices();
+    </script>
+
+</body>
+
+</html>

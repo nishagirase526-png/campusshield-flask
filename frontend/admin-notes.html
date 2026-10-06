@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes Management - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">🛡️ CampusShield</div>
+
+    <div class="nav-links">
+        <a href="admin-dashboard.html">Dashboard</a>
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+    </div>
+</nav>
+
+<main class="dashboard">
+
+    <div class="dashboard-header">
+        <p class="tagline">ADMIN PORTAL</p>
+        <h1>Notes Management</h1>
+        <p>Read-only oversight of learning resources shared with students.</p>
+    </div>
+
+    <section class="notice-section" aria-live="polite">
+        <h2>Learning Resources</h2>
+        <div id="adminResourceList">Loading resources...</div>
+    </section>
+
+</main>
+
+<script>
+async function loadAdminResources() {
+    const list = document.getElementById("adminResourceList");
+    try {
+        const response = await fetch("/api/admin/notes"); const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to load resources.");
+        list.textContent = "";
+        const resources = result.resources || [];
+        if (!resources.length) {
+            const empty = document.createElement("p");
+            empty.className = "empty-state";
+            empty.setAttribute("role", "status");
+            empty.textContent = "No study resources have been added.";
+            list.appendChild(empty);
+            return;
+        }
+        resources.forEach(item => {
+            const card = document.createElement("article"); card.className = "published-notice";
+            const title = document.createElement("h3"); title.textContent = item.title || "";
+            const description = document.createElement("p"); description.textContent = item.description || "";
+            const meta = document.createElement("span");
+            meta.textContent = [item.college_name, item.course_name, item.subject_name, item.file_type, item.uploaded_by_name].filter(Boolean).join(" · ");
+            const link = document.createElement("a");
+            try {
+                const file = new URL(item.file_url, window.location.origin);
+                if (file.protocol !== "http:" && file.protocol !== "https:") throw new Error("Unsupported link.");
+                link.href = file.href; link.textContent = "Open resource"; link.target = "_blank"; link.rel = "noopener noreferrer";
+            } catch (_) { link.textContent = "Resource link unavailable"; link.setAttribute("aria-disabled", "true"); }
+            card.append(title, description, meta, link); list.appendChild(card);
+        });
+    } catch (error) {
+        const failure = document.createElement("p");
+        failure.className = "empty-state error";
+        failure.setAttribute("role", "status");
+        failure.textContent = error.message || "Unable to load resources.";
+        list.replaceChildren(failure);
+    }
+}
+loadAdminResources();
+</script>
+
+</body>
+</html>

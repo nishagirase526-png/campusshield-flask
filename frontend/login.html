@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - CampusShield</title>
+
+    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="login.css?v=3.0">
+</head>
+
+<body class="campus-login-page">
+
+    <main class="campus-login-layout">
+
+        <section class="campus-login-brand" aria-label="CampusShield">
+
+            <div class="campus-brand-content">
+                <p class="campus-eyebrow">
+                    CAMPUS SECURITY PORTAL
+                </p>
+
+                <h1>
+                    Welcome back to CampusShield.
+                </h1>
+
+                <p class="campus-brand-copy">
+                    Securely access your academic services and stay connected with a safer, smarter campus platform.
+                </p>
+            </div>
+
+            <p class="campus-secure-note">
+                <span aria-hidden="true">🔒</span>
+                Secure access for students, faculty and administrators
+            </p>
+
+        </section>
+
+        <section class="campus-login-panel">
+
+            <div class="campus-login-card">
+
+                <div class="campus-mobile-brand">
+                    <span aria-hidden="true">🛡️</span>
+                    CampusShield
+                </div>
+
+                <p class="campus-eyebrow campus-eyebrow-dark">
+                    WELCOME BACK
+                </p>
+
+                <h2>
+                    Sign in to your account
+                </h2>
+
+                <p class="campus-intro">
+                    Enter your registered email address or mobile number
+                    to continue.
+                </p>
+
+                <form id="loginForm" novalidate>
+
+                    <div class="campus-field">
+
+                        <label>
+                            Sign in with
+                        </label>
+
+                        <div class="register-method-options">
+
+                            <button
+                                type="button"
+                                class="register-method-btn active"
+                                data-method="email"
+                            >
+                                Email
+                            </button>
+
+                            <button
+                                type="button"
+                                class="register-method-btn"
+                                data-method="mobile"
+                            >
+                                Mobile
+                            </button>
+
+                        </div>
+
+                        <input
+                            type="hidden"
+                            id="loginType"
+                            name="loginType"
+                            value="email"
+                        >
+
+                    </div>
+
+                    <div class="campus-field">
+
+                        <label>
+                            Role
+                        </label>
+
+                        <div class="login-role-options">
+
+                            <button
+                                type="button"
+                                class="login-role-btn"
+                                data-role="student"
+                            >
+                                Student
+                            </button>
+
+                            <button
+                                type="button"
+                                class="login-role-btn"
+                                data-role="faculty"
+                            >
+                                Faculty
+                            </button>
+
+                            <button
+                                type="button"
+                                class="login-role-btn"
+                                data-role="admin"
+                            >
+                                Admin
+                            </button>
+
+                        </div>
+
+                        <input
+                            type="hidden"
+                            id="role"
+                            name="role"
+                            value=""
+                        >
+
+                    </div>
+
+                    <div class="campus-field">
+
+                        <label
+                            for="identifier"
+                            id="identifierLabel"
+                        >
+                            Email address
+                        </label>
+
+                        <input
+                            id="identifier"
+                            name="identifier"
+                            type="email"
+                            autocomplete="username"
+                            placeholder="Enter your email address"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="campus-field">
+
+                        <div class="campus-password-label">
+
+                            <label for="password">
+                                Password
+                            </label>
+
+                            <a href="forgot-password.html">
+                                Forgot password?
+                            </a>
+
+                        </div>
+
+                        <div class="campus-password-wrap">
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                autocomplete="current-password"
+                                placeholder="Enter your password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                id="passwordToggle"
+                                class="campus-password-toggle"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                            >
+                                Show
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        id="loginButton"
+                        class="campus-login-button"
+                        type="submit"
+                    >
+                        Sign in
+                        <span aria-hidden="true">→</span>
+                    </button>
+
+                    <p
+                        id="loginMessage"
+                        class="campus-login-message"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                    <div class="campus-register-link">
+
+                        <span>
+                            Don't have an account?
+                        </span>
+
+                        <a href="register.html">
+                            Create Account
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="login.js"></script>
+
+</body>
+</html>

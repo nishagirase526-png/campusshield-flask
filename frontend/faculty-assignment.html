@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Assignments - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="faculty-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="faculty-assignment-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">FACULTY PORTAL</p>
+
+            <h1>Assignment Management</h1>
+
+            <p>
+                Create and publish assignments for students.
+            </p>
+
+        </div>
+
+
+        <div class="assignment-manager">
+
+            <h2>Create New Assignment</h2>
+
+            <div class="assignment-form">
+
+                <label for="assignmentTitle">Assignment title</label>
+
+                <input
+                    type="text"
+                    id="assignmentTitle"
+                    placeholder="Enter assignment title"
+                >
+
+                <label for="assignmentClass">Class</label>
+
+                <select id="assignmentClass">
+
+                    <option value="">
+                        Loading your classes...
+                    </option>
+
+                </select>
+
+                <label for="assignmentSubject">Subject</label>
+
+                <select id="assignmentSubject">
+
+                    <option value="">
+                        Select a class first
+                    </option>
+                </select>
+
+
+                <label for="dueDate">Due date</label>
+
+                <input
+                    type="date"
+                    id="dueDate"
+                >
+
+
+                <label for="assignmentDescription">Description</label>
+
+                <textarea
+                    id="assignmentDescription"
+                    rows="5"
+                    placeholder="Enter assignment instructions..."
+                ></textarea>
+
+
+                <button
+                    type="button"
+                    onclick="publishAssignment()"
+                >
+                    Publish Assignment
+                </button>
+
+            </div>
+
+
+            <div id="assignmentMessage"></div>
+
+
+            <h2 class="published-title">
+                Published Assignments
+            </h2>
+
+
+            <div id="assignmentList" aria-live="polite">
+
+                <p>Loading assignments...</p>
+
+            </div>
+
+            <h2 class="published-title">Student Submissions</h2>
+            <div id="submissionList" aria-live="polite">
+                <p>Loading submissions...</p>
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // =====================================================
+        // PUBLISH ASSIGNMENT
+        // =====================================================
+
+        async function publishAssignment() {
+
+            const title =
+                document
+                    .getElementById("assignmentTitle")
+                    .value
+                    .trim();
+
+            const subjectId =
+                document
+                    .getElementById("assignmentSubject")
+                    .value;
+
+            const classId =
+                document
+                    .getElementById("assignmentClass")
+                    .value;
+
+            const dueDate =
+                document
+                    .getElementById("dueDate")
+                    .value;
+
+            const description =
+                document
+                    .getElementById("assignmentDescription")
+                    .value
+                    .trim();
+
+            const message =
+                document.getElementById("assignmentMessage");
+
+
+            // -------------------------------------------------
+            // VALIDATION
+            // -------------------------------------------------
+
+            if (
+                !title ||
+                !subjectId ||
+                !classId ||
+                !dueDate ||
+                !description
+            ) {
+
+                message.textContent =
+                    "⚠️ Please fill all fields.";
+
+                return;
+            }
+
+
+            message.textContent =
+                "Publishing assignment...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/faculty/assignments",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                title: title,
+
+                                description: description,
+
+                                subject_id:
+                                    Number(subjectId),
+
+                                class_id:
+                                    Number(classId),
+
+                                due_date: dueDate
+
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok || !data.success) {
+
+                    message.textContent =
+                        "❌ " +
+                        (
+                            data.message ||
+                            "Unable to publish assignment."
+                        );
+
+                    return;
+                }
+
+
+                message.textContent =
+                    "✅ Assignment published successfully!";
+
+
+                // Clear form
+
+                document
+                    .getElementById("assignmentTitle")
+                    .value = "";
+
+                document
+                    .getElementById("assignmentSubject")
+                    .value = "";
+
+                document
+                    .getElementById("assignmentClass")
+                    .value = "";
+
+                document
+                    .getElementById("assignmentClass")
+                    .dispatchEvent(new Event("change"));
+
+                document
+                    .getElementById("dueDate")
+                    .value = "";
+
+                document
+                    .getElementById("assignmentDescription")
+                    .value = "";
+
+
+                // Reload assignments
+
+                loadAssignments();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Publish Assignment Error:",
+                    error
+                );
+
+                message.textContent =
+                    "❌ Unable to connect to server.";
+
+            }
+
+        }
+
+
+        async function loadFacultyClassSubjects() {
+
+            const classSelect =
+                document.getElementById("assignmentClass");
+            const subjectSelect =
+                document.getElementById("assignmentSubject");
+            const message =
+                document.getElementById("assignmentMessage");
+
+            try {
+                const response = await fetch("/api/faculty/class-subjects");
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Unable to load your classes.");
+                }
+
+                const classSubjects = data.class_subjects || [];
+                const classes = new Map();
+                classSubjects.forEach(function (item) {
+                    if (!classes.has(String(item.class_id))) {
+                        classes.set(String(item.class_id), item);
+                    }
+                });
+
+                classSelect.replaceChildren();
+                const classPlaceholder = document.createElement("option");
+                classPlaceholder.value = "";
+                classPlaceholder.textContent = classes.size
+                    ? "Select Class"
+                    : "No assigned classes";
+                classSelect.appendChild(classPlaceholder);
+
+                classes.forEach(function (item, classId) {
+                    const option = document.createElement("option");
+                    option.value = classId;
+                    option.textContent = [
+                        item.course_name,
+                        item.year_level ? "Year " + item.year_level : "",
+                        item.division,
+                        item.semester ? "Semester " + item.semester : "",
+                        item.academic_year
+                    ].filter(Boolean).join(" · ") || "Assigned class";
+                    classSelect.appendChild(option);
+                });
+
+                function updateSubjects() {
+                    subjectSelect.replaceChildren();
+                    const placeholder = document.createElement("option");
+                    placeholder.value = "";
+                    placeholder.textContent = classSelect.value
+                        ? "Select Subject"
+                        : "Select a class first";
+                    subjectSelect.appendChild(placeholder);
+
+                    classSubjects
+                        .filter(function (item) {
+                            return String(item.class_id) === classSelect.value;
+                        })
+                        .forEach(function (item) {
+                            const option = document.createElement("option");
+                            option.value = item.subject_id;
+                            option.textContent = item.subject_name
+                                ? item.subject_code
+                                    ? item.subject_name + " (" + item.subject_code + ")"
+                                    : item.subject_name
+                                : item.subject_code || "Assigned subject";
+                            subjectSelect.appendChild(option);
+                        });
+                }
+
+                classSelect.addEventListener("change", updateSubjects);
+                updateSubjects();
+
+                if (classes.size === 0) {
+                    message.className = "empty-state";
+                    message.setAttribute("role", "status");
+                    message.textContent = "No class subjects are assigned to your faculty account.";
+                }
+            }
+            catch (error) {
+                classSelect.replaceChildren();
+                subjectSelect.replaceChildren();
+                const option = document.createElement("option");
+                option.value = "";
+                option.textContent = "Unable to load classes";
+                classSelect.appendChild(option);
+                message.className = "empty-state error";
+                message.setAttribute("role", "status");
+                message.textContent = error.message || "Unable to load class subjects.";
+            }
+        }
+
+
+        // =====================================================
+        // LOAD PUBLISHED ASSIGNMENTS
+        // =====================================================
+
+        async function loadAssignments() {
+
+            const list =
+                document.getElementById("assignmentList");
+
+            function showMessage(text, isError) {
+                const message = document.createElement("p");
+                message.className = isError ? "empty-state error" : "empty-state";
+                message.setAttribute("role", "status");
+                message.textContent = text;
+                list.replaceChildren(message);
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/faculty/assignments"
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok || !data.success) {
+                    showMessage(data.message || "Unable to load assignments.", true);
+                    return;
+                }
+
+
+                const assignments =
+                    data.assignments || [];
+
+
+                // No assignments
+
+                if (assignments.length === 0) {
+                    showMessage("No assignments have been published yet.");
+                    return;
+                }
+
+                list.replaceChildren();
+
+
+                assignments.forEach(
+                    function (assignment) {
+
+                        const card =
+                            document.createElement("div");
+
+                        card.className =
+                            "published-assignment";
+
+
+                        const title =
+                            document.createElement("h3");
+
+                        title.textContent =
+                            assignment.title || "Assignment";
+
+
+                        const description =
+                            document.createElement("p");
+
+                        description.textContent =
+                            assignment.description || "No instructions provided.";
+
+
+                        const subject =
+                            document.createElement("span");
+
+                        subject.textContent = assignment.subject_name
+                            ? "Subject: " + assignment.subject_name
+                            : "";
+
+
+                        const due =
+                            document.createElement("span");
+
+                        due.textContent =
+                            " | Due: " +
+                            formatDate(
+                                assignment.due_date
+                            );
+
+
+                        const classInfo =
+                            document.createElement("span");
+
+                        const classDetails = [
+                            assignment.course,
+                            assignment.year ? "Year " + assignment.year : "",
+                            assignment.division
+                        ].filter(Boolean);
+                        classInfo.textContent = classDetails.length
+                            ? "Class: " + classDetails.join(" · ")
+                            : "";
+
+
+                        card.appendChild(title);
+
+                        card.appendChild(description);
+
+                        card.appendChild(subject);
+
+                        card.appendChild(due);
+
+                        card.appendChild(classInfo);
+
+
+                        list.appendChild(card);
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+                console.error(
+                    "Load Assignments Error:",
+                    error
+                );
+                showMessage(error.message || "Unable to load assignments.", true);
+
+            }
+
+        }
+
+        async function loadSubmissions() {
+            const list = document.getElementById("submissionList");
+            list.textContent = "Loading submissions...";
+            try {
+                const response = await fetch("/api/faculty/submissions", {
+                    credentials: "include"
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Unable to load submissions.");
+                }
+
+                const submissions = data.submissions || [];
+                list.replaceChildren();
+                if (!submissions.length) {
+                    const empty = document.createElement("p");
+                    empty.className = "empty-state";
+                    empty.setAttribute("role", "status");
+                    empty.textContent = "No student submissions have been received yet.";
+                    list.appendChild(empty);
+                    return;
+                }
+
+                submissions.forEach(function (submission) {
+                    const card = document.createElement("article");
+                    card.className = "published-assignment";
+                    const title = document.createElement("h3");
+                    title.textContent = submission.assignment_title || "Assignment";
+                    card.appendChild(title);
+
+                    const details = document.createElement("p");
+                    const submittedAt = submission.submitted_at
+                        ? new Date(submission.submitted_at)
+                        : null;
+                    const submittedText = submittedAt && !Number.isNaN(submittedAt.getTime())
+                        ? submittedAt.toLocaleString()
+                        : "Date unavailable";
+                    const status = String(submission.status || "pending")
+                        .replace(/_/g, " ");
+                    details.textContent = [
+                        submission.student_name || "Student",
+                        submission.roll_number ? "Roll " + submission.roll_number : "",
+                        submission.subject_name,
+                        "Submitted " + submittedText,
+                        "Status: " + status
+                    ].filter(Boolean).join(" · ");
+                    card.appendChild(details);
+
+                    if (submission.submission_url) {
+                        const link = document.createElement("a");
+                        try {
+                            const url = new URL(submission.submission_url);
+                            if (!["http:", "https:"].includes(url.protocol)) {
+                                throw new Error("Unsupported submission URL.");
+                            }
+                            link.href = url.href;
+                            link.target = "_blank";
+                            link.rel = "noopener noreferrer";
+                            link.textContent = "Open student submission";
+                        } catch (error) {
+                            link.textContent = "Submission link unavailable";
+                            link.setAttribute("aria-disabled", "true");
+                        }
+                        card.appendChild(link);
+                    }
+
+                    const form = document.createElement("form");
+                    form.className = "assignment-form";
+                    const marksLabel = document.createElement("label");
+                    marksLabel.textContent = "Marks (optional)";
+                    const marksInput = document.createElement("input");
+                    marksInput.type = "number";
+                    marksInput.min = "0";
+                    marksInput.max = "9999.99";
+                    marksInput.step = "0.01";
+                    marksInput.value = submission.marks == null ? "" : submission.marks;
+                    marksLabel.appendChild(marksInput);
+
+                    const feedbackLabel = document.createElement("label");
+                    feedbackLabel.textContent = "Feedback";
+                    const feedbackInput = document.createElement("textarea");
+                    feedbackInput.rows = 3;
+                    feedbackInput.value = submission.feedback || "";
+                    feedbackLabel.appendChild(feedbackInput);
+
+                    const saveButton = document.createElement("button");
+                    saveButton.type = "submit";
+                    saveButton.textContent = "Save review";
+                    const message = document.createElement("p");
+                    message.setAttribute("aria-live", "polite");
+                    form.append(marksLabel, feedbackLabel, saveButton, message);
+
+                    form.addEventListener("submit", async function (event) {
+                        event.preventDefault();
+                        saveButton.disabled = true;
+                        message.textContent = "Saving review...";
+                        try {
+                            const reviewResponse = await fetch(
+                                "/api/faculty/submissions/" +
+                                    encodeURIComponent(submission.id) + "/review",
+                                {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    credentials: "include",
+                                    body: JSON.stringify({
+                                        marks: marksInput.value,
+                                        feedback: feedbackInput.value
+                                    })
+                                }
+                            );
+                            const result = await reviewResponse.json();
+                            if (!reviewResponse.ok || !result.success) {
+                                throw new Error(result.message || "Unable to save review.");
+                            }
+                            message.textContent = result.message || "Review saved.";
+                            await loadSubmissions();
+                        } catch (error) {
+                            message.textContent = error.message || "Unable to save review.";
+                            saveButton.disabled = false;
+                        }
+                    });
+                    card.appendChild(form);
+                    list.appendChild(card);
+                });
+            } catch (error) {
+                const failure = document.createElement("p");
+                failure.className = "empty-state error";
+                failure.setAttribute("role", "status");
+                failure.textContent = error.message || "Unable to load submissions.";
+                list.replaceChildren(failure);
+            }
+        }
+
+
+        // =====================================================
+        // FORMAT DATE
+        // =====================================================
+
+        function formatDate(dateString) {
+
+            if (!dateString) {
+                return "No due date";
+            }
+
+            const match = String(dateString).slice(0, 10)
+                .match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!match) return "Date unavailable";
+            return new Date(
+                Number(match[1]),
+                Number(match[2]) - 1,
+                Number(match[3])
+            ).toLocaleDateString(undefined, {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            });
+
+        }
+
+
+        // =====================================================
+        // LOAD ASSIGNMENTS WHEN PAGE OPENS
+        // =====================================================
+
+            document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                loadFacultyClassSubjects();
+                loadAssignments();
+                loadSubmissions();
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

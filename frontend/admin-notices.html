@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Management - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">🛡️ CampusShield</div>
+
+    <div class="nav-links">
+        <a href="admin-dashboard.html">Dashboard</a>
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+    </div>
+</nav>
+
+<main class="dashboard">
+
+    <div class="dashboard-header">
+        <p class="tagline">ADMIN PORTAL</p>
+        <h1>Notice Management</h1>
+        <p>View published notices across colleges.</p>
+    </div>
+
+    <section class="notice-section" aria-live="polite">
+        <h2>Published Notices</h2>
+        <div id="adminNoticeList">Loading notices...</div>
+    </section>
+
+</main>
+
+<script>
+async function loadAdminNotices() {
+    const list = document.getElementById("adminNoticeList");
+    try {
+        const response = await fetch("/api/admin/notices"); const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to load notices.");
+        list.textContent = "";
+        if (!(result.notices || []).length) {
+            const empty = document.createElement("p");
+            empty.className = "empty-state";
+            empty.setAttribute("role", "status");
+            empty.textContent = "No notices have been published.";
+            list.appendChild(empty);
+            return;
+        }
+        result.notices.forEach(item => {
+            const card = document.createElement("article"); card.className = "published-notice";
+            const heading = document.createElement("h3"); heading.textContent = item.title || "";
+            const description = document.createElement("p"); description.textContent = item.description || "";
+            const meta = document.createElement("span");
+            meta.textContent = [item.college_name, item.audience, item.created_by_name, item.publish_at || item.created_at].filter(Boolean).join(" · ");
+            card.append(heading, description, meta); list.appendChild(card);
+        });
+    } catch (error) {
+        const failure = document.createElement("p");
+        failure.className = "empty-state error";
+        failure.setAttribute("role", "status");
+        failure.textContent = error.message || "Unable to load notices.";
+        list.replaceChildren(failure);
+    }
+}
+loadAdminNotices();
+</script>
+
+</body>
+</html>

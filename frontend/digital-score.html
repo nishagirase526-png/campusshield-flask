@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Digital Safety Score - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            🛡️ CampusShield
+        </div>
+
+        <div class="nav-links">
+            <a href="Cyber-safety.html">Cyber Safety</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+
+    </nav>
+
+
+    <main class="score-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">CYBER SAFETY ASSESSMENT</p>
+
+            <h1>Digital Safety Score</h1>
+
+            <p>
+                Answer a few questions to check your digital safety habits.
+            </p>
+
+        </div>
+
+
+        <div class="quiz-box">
+
+            <div class="question">
+
+                <h3>1. Do you use a strong and unique password?</h3>
+
+                <label>
+                    <input type="radio" name="q1" value="10">
+                    Yes
+                </label>
+
+                <label>
+                    <input type="radio" name="q1" value="0">
+                    No
+                </label>
+
+            </div>
+
+
+            <div class="question">
+
+                <h3>2. Do you enable two-factor authentication?</h3>
+
+                <label>
+                    <input type="radio" name="q2" value="10">
+                    Yes
+                </label>
+
+                <label>
+                    <input type="radio" name="q2" value="0">
+                    No
+                </label>
+
+            </div>
+
+
+            <div class="question">
+
+                <h3>3. Do you verify links before clicking them?</h3>
+
+                <label>
+                    <input type="radio" name="q3" value="10">
+                    Yes
+                </label>
+
+                <label>
+                    <input type="radio" name="q3" value="0">
+                    No
+                </label>
+
+            </div>
+
+
+            <div class="question">
+
+                <h3>4. Do you keep your software updated?</h3>
+
+                <label>
+                    <input type="radio" name="q4" value="10">
+                    Yes
+                </label>
+
+                <label>
+                    <input type="radio" name="q4" value="0">
+                    No
+                </label>
+
+            </div>
+
+
+            <div class="question">
+
+                <h3>5. Do you avoid sharing passwords with others?</h3>
+
+                <label>
+                    <input type="radio" name="q5" value="10">
+                    Yes
+                </label>
+
+                <label>
+                    <input type="radio" name="q5" value="0">
+                    No
+                </label>
+
+            </div>
+
+
+            <button onclick="calculateScore()">
+                Calculate My Score
+            </button>
+
+
+            <div id="scoreResult"></div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        function calculateScore() {
+
+            let score = 0;
+
+            for (let i = 1; i <= 5; i++) {
+
+                const answer =
+                    document.querySelector(
+                        'input[name="q' + i + '"]:checked'
+                    );
+
+                if (answer) {
+                    score += Number(answer.value);
+                }
+            }
+
+
+            const result =
+                document.getElementById("scoreResult");
+
+
+            result.innerHTML =
+                "🛡️ Your Digital Safety Score: " +
+                score +
+                "/50";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Website Safety Checker - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            🛡️ CampusShield
+        </div>
+
+        <div class="nav-links">
+            <a href="Cyber-safety.html">Cyber Safety</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+
+    </nav>
+
+
+    <main class="website-page">
+
+        <div class="page-heading">
+
+            <p class="tagline">CYBER SAFETY TOOL</p>
+
+            <h1>Website Safety Checker</h1>
+
+            <p>
+                Check basic safety information about a website URL.
+            </p>
+
+        </div>
+
+
+        <div class="website-box">
+
+            <label for="websiteURL">
+                Enter Website URL
+            </label>
+
+            <input
+                type="text"
+                id="websiteURL"
+                placeholder="https://example.com"
+            >
+
+            <button onclick="checkWebsite()">
+                Check Website
+            </button>
+
+            <div id="websiteResult"></div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        function checkWebsite() {
+
+            const url =
+                document.getElementById("websiteURL").value.trim();
+
+            const result =
+                document.getElementById("websiteResult");
+
+
+            if (url === "") {
+
+                result.innerHTML =
+                    "⚠️ Please enter a website URL.";
+
+                return;
+            }
+
+
+            if (url.startsWith("https://")) {
+
+                result.innerHTML =
+                    "🔒 HTTPS detected. The website uses an encrypted connection.";
+
+            }
+
+            else if (url.startsWith("http://")) {
+
+                result.innerHTML =
+                    "⚠️ HTTP detected. This connection is not encrypted.";
+
+            }
+
+            else {
+
+                result.innerHTML =
+                    "⚠️ Please enter a URL starting with http:// or https://";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

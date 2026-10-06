@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account - CampusShield</title>
+
+    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="register.css?v=3.0">
+    <link rel="stylesheet" href="login.css?v=3.0">
+</head>
+
+<body class="campus-register-page">
+
+    <main class="campus-register-layout">
+
+        <section class="campus-register-brand">
+
+
+            <div class="campus-register-brand-content">
+
+                <p class="campus-eyebrow">
+                    CAMPUS SECURITY PORTAL
+                </p>
+
+                <h1>
+                    Create your CampusShield account.
+                </h1>
+
+                <p class="campus-brand-copy">
+                    Join a safer, smarter campus platform with secure access to academic services and cyber-safety resources.
+                </p>
+
+            </div>
+
+            <p class="campus-secure-note">
+                <span>🔒</span>
+                Secure registration for students
+            </p>
+
+        </section>
+
+        <section class="campus-register-panel">
+
+            <div class="campus-register-card">
+
+                <div class="campus-mobile-brand">
+                    <span>🛡️</span> CampusShield
+                </div>
+
+                <p class="campus-eyebrow campus-eyebrow-dark">
+                    GET STARTED
+                </p>
+
+                <h2>
+                    Create your account
+                </h2>
+
+                <p class="campus-intro" id="registerIntro">
+                    Enter your details. We will send an OTP to verify
+                    your email or mobile number.
+                </p>
+
+                <form id="registerForm" novalidate>
+
+                    <div id="stepDetails" class="auth-step active">
+
+                        <div class="campus-field">
+
+                            <label for="fullName">
+                                Full name
+                            </label>
+
+                            <input
+                                id="fullName"
+                                name="fullName"
+                                type="text"
+                                placeholder="Enter your full name"
+                                autocomplete="name"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="campus-field">
+
+                            <label>
+                                Register with
+                            </label>
+
+                            <div class="register-method-options">
+
+                                <button
+                                    type="button"
+                                    class="register-method-btn active"
+                                    data-method="email"
+                                >
+                                    Email
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="register-method-btn"
+                                    data-method="mobile"
+                                >
+                                    Mobile
+                                </button>
+
+                            </div>
+
+                            <input
+                                type="hidden"
+                                id="registerMethod"
+                                name="registerMethod"
+                                value="email"
+                            >
+
+                        </div>
+
+                        <div class="campus-field">
+
+                            <label
+                                for="identifier"
+                                id="identifierLabel"
+                            >
+                                Email address
+                            </label>
+
+                            <input
+                                id="identifier"
+                                name="identifier"
+                                type="email"
+                                placeholder="Enter your email address"
+                                autocomplete="email"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="campus-field">
+
+                            <label for="collegeId">
+                                College
+                            </label>
+
+                            <select
+                                id="collegeId"
+                                name="collegeId"
+                                required
+                            >
+                                <option value="">
+                                    Select your college
+                                </option>
+                            </select>
+
+                        </div>
+
+                        <div class="campus-field">
+
+                            <label for="studentClassId">
+                                Class
+                            </label>
+
+                            <select
+                                id="studentClassId"
+                                name="classId"
+                                required
+                                disabled
+                            >
+                                <option value="">
+                                    Select your college first
+                                </option>
+                            </select>
+
+                        </div>
+
+                        <div class="campus-field">
+
+                            <label for="rollNumber">
+                                Roll number
+                            </label>
+
+                            <input
+                                id="rollNumber"
+                                name="rollNumber"
+                                type="text"
+                                maxlength="50"
+                                autocomplete="off"
+                                required
+                            >
+
+                        </div>
+
+                        <button
+                            id="sendOtpButton"
+                            class="campus-register-button"
+                            type="button"
+                        >
+                            Send OTP
+                            <span>→</span>
+                        </button>
+
+                    </div>
+
+                    <div id="stepOtp" class="auth-step">
+
+                        <p class="otp-hint" id="otpHint">
+                            Enter the 6-digit OTP sent to your email or mobile.
+                        </p>
+
+                        <div class="campus-field">
+
+                            <label for="otp">
+                                OTP
+                            </label>
+
+                            <input
+                                id="otp"
+                                name="otp"
+                                type="text"
+                                inputmode="numeric"
+                                maxlength="6"
+                                placeholder="Enter 6-digit OTP"
+                                autocomplete="one-time-code"
+                            >
+
+                        </div>
+
+                        <button
+                            id="verifyOtpButton"
+                            class="campus-register-button"
+                            type="button"
+                        >
+                            Verify OTP
+                        </button>
+
+                    </div>
+
+                    <div id="stepPassword" class="auth-step">
+
+                        <div class="campus-field">
+
+                            <label for="password">
+                                Password
+                            </label>
+
+                            <div class="campus-password-wrap">
+
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="Create a password"
+                                    autocomplete="new-password"
+                                >
+
+                                <button
+                                    type="button"
+                                    id="passwordToggle"
+                                    class="campus-password-toggle"
+                                >
+                                    Show
+                                </button>
+
+                            </div>
+
+                            <small class="password-hint">
+                                Password must contain at least 8 characters.
+                            </small>
+
+                        </div>
+
+                        <div class="campus-field">
+
+                            <label for="confirmPassword">
+                                Confirm password
+                            </label>
+
+                            <div class="campus-password-wrap">
+
+                                <input
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type="password"
+                                    placeholder="Re-enter your password"
+                                    autocomplete="new-password"
+                                >
+
+                                <button
+                                    type="button"
+                                    id="confirmPasswordToggle"
+                                    class="campus-password-toggle"
+                                >
+                                    Show
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            id="registerButton"
+                            class="campus-register-button"
+                            type="submit"
+                        >
+                            Create account
+                            <span>→</span>
+                        </button>
+
+                    </div>
+
+                    <p
+                        id="registerMessage"
+                        class="campus-register-message"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                    <p class="login-link-text">
+
+                        Already have an account?
+
+                        <a href="login.html">
+                            Sign in
+                        </a>
+
+                    </p>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="register.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,381 @@
+/* =========================================================
+   CAMPUSSHIELD REGISTER PAGE
+   Consistent with Home Page Design System:
+   Dark Charcoal + White + Dark Pink / Purple / Sky Blue Ambient Reflection
+   ========================================================= */
+
+.campus-register-page {
+    min-height: 100vh;
+    margin: 0;
+    background: #eceff6;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0f172a;
+}
+
+.campus-register-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* =========================================================
+   LEFT BRAND PANEL (DARK PINK → PURPLE → SUBTLE SKY BLUE)
+   Deep dark charcoal base with mixed ambient reflections
+   Dominant: Dark + Pink + Purple with subtle sky blue
+   ========================================================= */
+.campus-register-brand {
+    background-color: #060911;
+    background-image: 
+        radial-gradient(circle at 18% 22%, rgba(225, 29, 72, 0.40) 0%, rgba(190, 24, 93, 0.08) 48%, transparent 68%),
+        radial-gradient(circle at 82% 48%, rgba(109, 40, 217, 0.46) 0%, rgba(91, 33, 182, 0.10) 52%, transparent 72%),
+        radial-gradient(circle at 35% 85%, rgba(2, 132, 199, 0.14) 0%, rgba(2, 132, 199, 0.03) 40%, transparent 60%),
+        linear-gradient(160deg, #060911 0%, #0a0e1a 45%, #0e1422 100%);
+    color: #ffffff;
+    padding: 60px 55px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.campus-register-brand::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(109, 40, 217, 0.28) 0%, rgba(219, 39, 119, 0.22) 38%, rgba(2, 132, 199, 0.08) 75%, transparent 95%);
+    filter: blur(55px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Hide brand mark on left promotional panel per strict instruction */
+.campus-register-brand .campus-brand-mark {
+    display: none !important;
+}
+
+.campus-register-brand-content,
+.campus-eyebrow,
+.campus-register-brand h1,
+.campus-brand-copy,
+.campus-secure-note {
+    position: relative;
+    z-index: 1;
+}
+
+.campus-register-brand-content {
+    max-width: 500px;
+}
+
+.campus-eyebrow {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+    color: #f8fafc;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.campus-register-brand h1 {
+    font-size: clamp(34px, 3.8vw, 50px);
+    line-height: 1.15;
+    margin: 0 0 22px;
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
+}
+
+.campus-brand-copy {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #e5e7eb;
+    max-width: 480px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+}
+
+.campus-secure-note {
+    font-size: 14px;
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+
+/* =========================================================
+   RIGHT REGISTER PANEL & CARD (AMBIENT REFLECTION)
+   ========================================================= */
+.campus-register-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 25px;
+    background: #eceff6;
+}
+
+.campus-register-card {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 38px;
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 
+        0 20px 50px -12px rgba(15, 23, 42, 0.12),
+        0 12px 34px -6px rgba(109, 40, 217, 0.18),
+        0 12px 34px -6px rgba(219, 39, 119, 0.16),
+        0 6px 20px -4px rgba(2, 132, 199, 0.10);
+    position: relative;
+    transition: box-shadow 0.25s ease;
+}
+
+.campus-register-card:hover {
+    box-shadow: 
+        0 24px 58px -12px rgba(15, 23, 42, 0.14),
+        0 16px 40px -6px rgba(109, 40, 217, 0.24),
+        0 16px 40px -6px rgba(219, 39, 119, 0.20),
+        0 8px 24px -4px rgba(2, 132, 199, 0.14);
+}
+
+.campus-mobile-brand {
+    display: none;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #0f172a;
+}
+
+.campus-eyebrow-dark {
+    color: #64748b;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.campus-register-card h2 {
+    margin: 0;
+    font-size: 32px;
+    color: #0f172a;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.campus-intro {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    font-size: 15px;
+}
+
+.campus-field {
+    margin-bottom: 19px;
+}
+
+.campus-field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.campus-field input,
+.campus-field select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    padding: 13px 14px;
+    font-size: 15px;
+    outline: none;
+    background: #ffffff;
+    color: #0f172a;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campus-field input:focus,
+.campus-field select:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12), 0 0 10px rgba(109, 40, 217, 0.14);
+}
+
+.register-method-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.register-method-btn {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: #111827;
+    color: #ffffff;
+    border-radius: 11px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
+    transition: all 0.22s ease;
+}
+
+.register-method-btn:hover {
+    background: #1f2937;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.30);
+    box-shadow: 0 4px 14px rgba(109, 40, 217, 0.25), 0 0 10px rgba(219, 39, 119, 0.18);
+    transform: translateY(-1px);
+}
+
+/* Active / Selected: WHITE button + BLACK text + subtle dark pink/purple ambient glow */
+.register-method-btn.active {
+    background: #ffffff !important;
+    border: 2px solid #0f172a !important;
+    color: #0f172a !important;
+    font-weight: 800;
+    box-shadow: 0 6px 20px rgba(109, 40, 217, 0.24), 0 2px 10px rgba(219, 39, 119, 0.20) !important;
+    transform: translateY(-1px);
+}
+
+.campus-password-wrap {
+    position: relative;
+}
+
+.campus-password-wrap input {
+    padding-right: 70px;
+}
+
+.campus-password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #0f172a;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 6px;
+}
+
+.password-hint {
+    display: block;
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* =========================================================
+   REGISTER BUTTON (BLACK / DARK CHARCOAL)
+   ========================================================= */
+.campus-register-button {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 11px;
+    padding: 14px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32), 0 0 10px rgba(109, 40, 217, 0.16);
+    transition: all 0.22s ease;
+}
+
+.campus-register-button:hover {
+    background: #1f2937;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 18px rgba(124, 58, 237, 0.28), 0 0 14px rgba(2, 132, 199, 0.20);
+    transform: translateY(-1px);
+}
+
+.campus-register-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #475569;
+    box-shadow: none;
+    transform: none;
+}
+
+.campus-register-message {
+    min-height: 20px;
+    margin: 12px 0;
+    font-size: 14px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.campus-register-message.error {
+    color: #dc2626;
+}
+
+.campus-register-message.success {
+    color: #16a34a;
+}
+
+.login-link-text {
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 22px;
+}
+
+.login-link-text a {
+    color: #0f172a;
+    font-weight: 800;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.login-link-text a:hover {
+    color: #6d28d9;
+}
+
+.auth-step {
+    display: none;
+}
+
+.auth-step.active {
+    display: block;
+}
+
+.otp-hint {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 850px) {
+    .campus-register-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .campus-register-brand {
+        display: none;
+    }
+
+    .campus-mobile-brand {
+        display: block;
+    }
+}
+
+@media (max-width: 520px) {
+    .campus-register-panel {
+        padding: 20px 14px;
+    }
+
+    .campus-register-card {
+        padding: 25px 20px;
+        border-radius: 16px;
+    }
+
+    .campus-register-card h2 {
+        font-size: 27px;
+    }
+}

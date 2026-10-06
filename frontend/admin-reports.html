@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports - CampusShield</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🛡️ CampusShield
+    </div>
+
+    <div class="nav-links">
+
+        <a href="admin-dashboard.html">
+            Dashboard
+        </a>
+
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+
+    </div>
+
+</nav>
+
+
+<main class="reports-page">
+
+    <div class="page-heading">
+
+        <p class="tagline">
+            ADMIN PORTAL
+        </p>
+
+        <h1>
+            Campus Reports
+        </h1>
+
+        <p>
+            Overview of important campus activities and records.
+        </p>
+
+    </div>
+
+
+    <p id="reportsMessage" role="status" aria-live="polite">Loading current database totals...</p>
+    <div class="report-grid" id="reportGrid"></div>
+
+
+    <div class="report-summary">
+
+        <h2>
+            CampusShield Summary
+        </h2>
+
+        <p id="reportSummary">Totals are calculated from current database records.</p>
+
+    </div>
+
+</main>
+
+<script>
+const reportCards = [
+    ["👨‍🎓", "Total Students", "students", value => value, "Student records"],
+    ["👨‍🏫", "Active Faculty", "faculty", value => value, "Active faculty records"],
+    ["🏫", "Colleges", "colleges", value => value, "Colleges in the database"],
+    ["📊", "Attendance", "attendance", value => value.rate_percent + "%", value => value.attended_records + " present or late of " + value.total_records + " records"],
+    ["📝", "Assignments", "assignments", value => value.total, value => value.submissions + " submissions"],
+    ["📅", "Events", "events", value => value, "Event records"],
+    ["📢", "Notices", "notices", value => value, "Notice records"],
+    ["⚠️", "Cyber Incidents", "cyber_incidents", value => value.total_incidents, value => value.open_incidents + " open"],
+    ["📈", "Marks", "marks", value => value.average_percent + "%", value => value.total_entries + " mark entries"]
+];
+async function loadReports() {
+    const grid = document.getElementById("reportGrid");
+    const message = document.getElementById("reportsMessage");
+    try {
+        const response = await fetch("/api/admin/reports"); const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to load reports.");
+        const reports = result.reports || {};
+        grid.textContent = "";
+        reportCards.forEach(([iconText, titleText, key, valueFor, detailFor]) => {
+            const card = document.createElement("article"); card.className = "report-card";
+            const icon = document.createElement("div"); icon.className = "report-icon"; icon.textContent = iconText;
+            const title = document.createElement("h3"); title.textContent = titleText;
+            const value = document.createElement("h2");
+            const detail = document.createElement("p");
+            const data = reports[key];
+            value.textContent = data === undefined ? "—" : String(valueFor(data));
+            detail.textContent = data === undefined ? "No data" : String(typeof detailFor === "function" ? detailFor(data) : detailFor);
+            card.append(icon, title, value, detail); grid.appendChild(card);
+        });
+        const assignmentData = reports.assignments || {};
+        document.getElementById("reportSummary").textContent =
+            "Current records include " + (reports.students || 0) + " students, " +
+            (reports.faculty || 0) + " active faculty, " + (assignmentData.total || 0) +
+            " assignments, and " + (reports.cyber_incidents?.total_incidents || 0) + " cyber incident reports.";
+        message.textContent = "Report totals loaded from the database.";
+    } catch (error) {
+        grid.textContent = "";
+        message.textContent = error.message || "Unable to load report totals.";
+    }
+}
+loadReports();
+</script>
+
+</body>
+
+</html>

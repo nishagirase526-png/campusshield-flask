@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+
+        <div class="dashboard-header">
+            <div>
+                <p class="tagline">FACULTY PORTAL</p>
+                <h1>Faculty Dashboard</h1>
+                <p>
+                    Manage attendance, assignments, marks and
+                    college updates from one place.
+                </p>
+            </div>
+        </div>
+
+        <div class="dashboard-cards">
+
+            <div class="dashboard-card" id="facultyProfileCard" aria-live="polite">
+                <div class="card-icon" aria-hidden="true">👤</div>
+                <h3>My Profile</h3>
+                <p id="facultyProfileDetails">Loading faculty profile...</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">📋</div>
+                <h3>Attendance</h3>
+                <p>Mark and manage student attendance.</p>
+                <a href="faculty-attendence.html">
+                <button>Manage Attendance</button>
+                </a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">📚</div>
+                <h3>Assignments</h3>
+                <p>Upload and manage student assignments.</p>
+                <a href="faculty-assignment.html">
+                <button>Manage Assignments</button>
+                </a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">📝</div>
+                <h3>Student Marks</h3>
+                <p>Manage and view student performance.</p>
+                <a href="marks.html">
+                <button>View Marks</button>
+                </a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">📚</div>
+                <h3>Notes & Resources</h3>
+                <p>Share subject notes and learning resources with students.</p>
+                <a href="faculty-notes.html">
+                <button>Manage Notes</button>
+                </a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">📢</div>
+                <h3>Notices</h3>
+                <p>Create and share important announcements.</p>
+                <a href="faculty-notices.html">
+                <button>Manage Notices</button>
+                </a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">📅</div>
+                <h3>Events</h3>
+                <p>Manage college events and updates.</p>
+                <a href="faculty-events.html">
+                <button>Manage Events</button>
+                </a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">🗓️</div>
+                <h3>Timetable</h3>
+                <p>View your assigned classes and weekly teaching schedule.</p>
+                <a href="faculty-timetable.html">
+                <button>View Timetable</button>
+                </a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon" aria-hidden="true">🎓</div>
+                <h3>Students</h3>
+                <p>View and manage student information.</p>
+                <a href="faculty-student.html">
+                <button>View Students</button>
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        async function loadFacultyProfile() {
+            const details = document.getElementById("facultyProfileDetails");
+            try {
+                const response = await fetch("/api/faculty/profile");
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || "Unable to load faculty profile.");
+                }
+
+                const profile = result.profile;
+                details.textContent = [
+                    profile.full_name,
+                    profile.department,
+                    profile.college,
+                    profile.designation
+                ].filter(Boolean).join(" · ") || "No profile details are available.";
+            } catch (error) {
+                details.textContent = error.message || "Unable to load faculty profile.";
+            }
+        }
+
+        loadFacultyProfile();
+    </script>
+
+</body>
+</html>

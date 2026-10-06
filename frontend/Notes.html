@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="student-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="notes-page">
+
+        <div class="page-heading">
+            <p class="tagline">STUDENT MODULE</p>
+            <h1>Study Notes</h1>
+            <p>Access your study materials from one place.</p>
+        </div>
+
+        <div class="notes-grid" id="resourceList" aria-live="polite">Loading study resources...</div>
+
+    </main>
+
+</body>
+<script>
+async function loadStudentResources() {
+    const list = document.getElementById("resourceList");
+    try {
+        const response = await fetch("/api/student/notes");
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to load study resources.");
+        const resources = result.resources || [];
+        list.textContent = "";
+        if (!resources.length) {
+            const empty = document.createElement("p");
+            empty.className = "empty-state";
+            empty.setAttribute("role", "status");
+            empty.textContent = "No study resources are available for your class yet.";
+            list.appendChild(empty);
+            return;
+        }
+        resources.forEach(resource => {
+            const card = document.createElement("article"); card.className = "note-card";
+            const icon = document.createElement("div"); icon.className = "card-icon"; icon.textContent = "📚";
+            const title = document.createElement("h3"); title.textContent = resource.title || "Study resource";
+            const description = document.createElement("p"); description.textContent = resource.description || "";
+            const context = document.createElement("p");
+            context.textContent = [resource.course_name, resource.subject_name, resource.file_type].filter(Boolean).join(" · ");
+            const link = document.createElement("a");
+            try {
+                const file = new URL(resource.file_url, window.location.origin);
+                if (file.protocol !== "http:" && file.protocol !== "https:") throw new Error("Unsupported link.");
+                link.href = file.href;
+                link.textContent = "Open resource";
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+            } catch (_) {
+                link.textContent = "Resource link unavailable";
+                link.setAttribute("aria-disabled", "true");
+            }
+            card.append(icon, title, description, context, link);
+            list.appendChild(card);
+        });
+    } catch (error) {
+        const failure = document.createElement("p");
+        failure.className = "empty-state error";
+        failure.setAttribute("role", "status");
+        failure.textContent = error.message || "Unable to load study resources.";
+        list.replaceChildren(failure);
+    }
+}
+loadStudentResources();
+</script>
+</html>

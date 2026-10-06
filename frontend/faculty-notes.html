@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src='api-config.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Notes - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">🛡️ CampusShield</div>
+    <div class="nav-links">
+        <a href="faculty-dashboard.html">Dashboard</a>
+        <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+    </div>
+</nav>
+
+<main class="dashboard">
+    <div class="dashboard-header">
+        <p class="tagline">FACULTY PORTAL</p>
+        <h1>Notes & Resources</h1>
+        <p>Share subject notes and links for students in your college.</p>
+    </div>
+
+    <section class="notice-section">
+        <h2>Add a Study Resource</h2>
+        <div class="notice-form">
+            <label>Title</label>
+            <input type="text" id="resourceTitle" placeholder="Enter resource title">
+
+            <label>Subject</label>
+            <select id="resourceSubject">
+                <option value="">General / college-wide</option>
+            </select>
+
+            <label>Resource URL</label>
+            <input type="url" id="resourceUrl" placeholder="https://example.com/notes.pdf">
+
+            <label>Type</label>
+            <input type="text" id="resourceType" placeholder="PDF, Video, Notes, Link" value="PDF">
+
+            <label>Description</label>
+            <textarea id="resourceDescription" rows="4" placeholder="Describe the resource..."></textarea>
+
+            <button type="button" id="saveResourceButton">Save Resource</button>
+        </div>
+        <div id="resourceMessage" aria-live="polite"></div>
+    </section>
+
+    <section class="notice-section" aria-live="polite">
+        <h2>Published Study Resources</h2>
+        <div id="resourceList">Loading resources...</div>
+    </section>
+</main>
+
+<script>
+const resourceList = document.getElementById("resourceList");
+const subjectSelect = document.getElementById("resourceSubject");
+
+async function loadAssignedSubjects() {
+    try {
+        const response = await fetch("/api/faculty/class-subjects", { credentials: "include" });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            return;
+        }
+        const subjects = result.class_subjects || [];
+        if (!subjects.length) {
+            return;
+        }
+        subjects.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.subject_id;
+            option.textContent = (item.subject_name || item.subject_code || "Subject") + " · " + (item.course_name || "Course");
+            subjectSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Unable to load assigned subjects.", error);
+    }
+}
+
+function renderResources(resources) {
+    resourceList.textContent = "";
+    if (!resources.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty-state";
+        empty.textContent = "No study resources have been published yet.";
+        resourceList.appendChild(empty);
+        return;
+    }
+
+    resources.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "published-notice";
+
+        const title = document.createElement("h3");
+        title.textContent = item.title || "Untitled resource";
+
+        const description = document.createElement("p");
+        description.textContent = item.description || "No description provided.";
+
+        const meta = document.createElement("span");
+        const subjectText = [item.subject_name, item.subject_code].filter(Boolean).join(" · ");
+        meta.textContent = [subjectText || "General", item.course_name, item.file_type, item.uploaded_by_name].filter(Boolean).join(" · ");
+
+        const link = document.createElement("a");
+        link.href = item.file_url || "#";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Open resource";
+
+        card.append(title, description, meta, link);
+        resourceList.appendChild(card);
+    });
+}
+
+async function loadResources() {
+    try {
+        const response = await fetch("/api/faculty/notes", { credentials: "include" });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to load study resources.");
+        }
+        renderResources(result.resources || []);
+    } catch (error) {
+        const failure = document.createElement("p");
+        failure.className = "empty-state error";
+        failure.textContent = error.message || "Unable to load study resources.";
+        resourceList.replaceChildren(failure);
+    }
+}
+
+async function saveResource() {
+    const button = document.getElementById("saveResourceButton");
+    const message = document.getElementById("resourceMessage");
+    const payload = {
+        title: document.getElementById("resourceTitle").value.trim(),
+        description: document.getElementById("resourceDescription").value.trim(),
+        file_url: document.getElementById("resourceUrl").value.trim(),
+        file_type: document.getElementById("resourceType").value.trim() || "Link",
+        subject_id: subjectSelect.value ? Number(subjectSelect.value) : null,
+    };
+
+    message.textContent = "";
+    button.disabled = true;
+    try {
+        const response = await fetch("/api/faculty/notes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to save the resource.");
+        }
+        message.textContent = result.message || "Resource saved successfully.";
+        document.getElementById("resourceTitle").value = "";
+        document.getElementById("resourceUrl").value = "";
+        document.getElementById("resourceType").value = "PDF";
+        document.getElementById("resourceDescription").value = "";
+        subjectSelect.value = "";
+        await loadResources();
+    } catch (error) {
+        message.textContent = error.message || "Unable to save the resource.";
+    } finally {
+        button.disabled = false;
+    }
+}
+
+document.getElementById("saveResourceButton").addEventListener("click", saveResource);
+loadAssignedSubjects();
+loadResources();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='api-config.js'></script>
+    <title>Timetable - CampusShield</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">🛡️ CampusShield</div>
+
+        <div class="nav-links">
+            <a href="student-dashboard.html">Dashboard</a>
+            <form method="post" action="/logout" class="logout-form"><button type="submit" class="logout-button">Logout</button></form>
+        </div>
+    </nav>
+
+    <main class="timetable-page">
+
+        <div class="page-heading">
+            <p class="tagline">STUDENT MODULE</p>
+
+            <h1>Class Timetable</h1>
+
+            <p>
+                View your weekly class schedule in one place.
+            </p>
+        </div>
+
+        <div class="timetable-container" aria-live="polite">
+            <div id="timetableStatus">Loading timetable...</div>
+            <table id="timetableTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Subject</th>
+                        <th>Time</th>
+                        <th>Room</th>
+                        <th>Faculty</th>
+                    </tr>
+                </thead>
+                <tbody id="timetableBody"></tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script>
+        const statusBox = document.getElementById("timetableStatus");
+        const table = document.getElementById("timetableTable");
+        const tbody = document.getElementById("timetableBody");
+
+        function showMessage(message, isError = false) {
+            table.style.display = "none";
+            statusBox.className = isError ? "empty-state error" : "empty-state";
+            statusBox.textContent = message;
+        }
+
+        function renderTimetable(entries) {
+            tbody.innerHTML = "";
+            if (!entries.length) {
+                showMessage("No timetable entries have been published yet for your class.");
+                return;
+            }
+
+            entries.forEach((entry) => {
+                const row = document.createElement("tr");
+                const subject = [entry.subject_name || "Subject", entry.subject_code ? `(${entry.subject_code})` : ""].join(" ").trim();
+                row.innerHTML = `
+                    <td>${entry.day_of_week || "-"}</td>
+                    <td>${subject || "-"}</td>
+                    <td>${entry.start_time || "-"} - ${entry.end_time || "-"}</td>
+                    <td>${entry.room || "-"}</td>
+                    <td>${entry.faculty_name || "TBA"}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            statusBox.textContent = "";
+            table.style.display = "table";
+        }
+
+        async function loadTimetable() {
+            try {
+                const response = await fetch("/api/student/timetable", { credentials: "include" });
+                const contentType = response.headers.get("content-type") || "";
+                if (!contentType.includes("application/json")) {
+                    throw new Error("The timetable service returned an unexpected response.");
+                }
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || "Unable to load timetable.");
+                }
+                renderTimetable(result.timetable || []);
+            } catch (error) {
+                showMessage(error.message || "Unable to load timetable.", true);
+            }
+        }
+
+        loadTimetable();
+    </script>
+
+</body>
+
+</html>
