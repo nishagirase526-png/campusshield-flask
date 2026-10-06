@@ -1,5 +1,5 @@
-// Keep local Flask development same-origin. Hosted frontends send API calls to
-// the separately deployed CampusShield backend.
+// Keep local development and the single-service Railway deployment same-origin.
+// The existing Render frontend continues to use its separately hosted backend.
 (function () {
     const hostname = window.location.hostname.toLowerCase();
     const renderBackendBaseUrl = "https://campusshield-5t1p.onrender.com";
