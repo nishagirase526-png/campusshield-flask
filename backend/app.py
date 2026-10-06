@@ -125,9 +125,10 @@ local_cors_origins = [
     "http://127.0.0.1:8000",
 ]
 render_frontend_origin_pattern = r"^https://[a-z0-9-]+\.onrender\.com$"
+railway_frontend_origin_pattern = r"^https://[a-z0-9-]+\.up\.railway\.app$"
 CORS(
     app,
-    resources={r"/api/*": {"origins": configured_cors_origins + local_cors_origins + [render_frontend_origin_pattern]}},
+    resources={r"/api/*": {"origins": configured_cors_origins + local_cors_origins + [render_frontend_origin_pattern, railway_frontend_origin_pattern]}},
     supports_credentials=True
 )
 
