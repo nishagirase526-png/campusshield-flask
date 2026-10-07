@@ -1,17 +1,8 @@
 // Keep local development and the single-service Railway deployment same-origin.
-// The existing Render frontend continues to use its separately hosted backend.
 (function () {
     const hostname = window.location.hostname.toLowerCase();
-    const renderBackendBaseUrl = "https://campusshield-5t1p.onrender.com";
-    // Railway serves the Flask app and frontend from one service, so API calls
-    // should stay on that service's origin. Keep the existing Render frontend
-    // pointed at its separately hosted backend.
-    const backendBaseUrl = hostname.endsWith(".onrender.com")
-        ? renderBackendBaseUrl
-        : window.location.origin;
-    const isLocalDevelopment = ["localhost", "127.0.0.1", "::1"].includes(
-        hostname
-    );
+    const isLocalDevelopment = ["localhost", "127.0.0.1", "::1"].includes(hostname);
+    const backendBaseUrl = window.location.origin;
     const originalFetch = window.fetch.bind(window);
 
     window.fetch = function (input, init) {
